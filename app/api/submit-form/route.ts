@@ -4,14 +4,15 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    const { firstName, lastName, email, homeowner, windowCount, windowAge, planningProcess, zipCode, subid1, subid2, subid3, trustedformCertUrl } = body
+    const { firstName, lastName, email, phoneNumber, homeowner, windowCount, windowAge, planningProcess, zipCode, subid1, subid2, subid3, trustedformCertUrl } = body
 
     // Validate required fields
-    if (!firstName || !lastName || !email || !homeowner || !windowCount || !windowAge || !planningProcess) {
+    if (!firstName || !lastName || !email || !phoneNumber || !homeowner || !windowCount || !windowAge || !planningProcess) {
       const missingFields = [];
       if (!firstName) missingFields.push('firstName');
       if (!lastName) missingFields.push('lastName');
       if (!email) missingFields.push('email');
+      if (!phoneNumber) missingFields.push('phoneNumber');
       if (!homeowner) missingFields.push('homeowner');
       if (!windowCount) missingFields.push('windowCount');
       if (!windowAge) missingFields.push('windowAge');
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       email: email.trim(),
+      phone_number: phoneNumber?.trim() || '',
       zip_code: zipCode?.trim() || '',
       home_owner: homeowner.trim(),
       window_count: windowCount.trim(),

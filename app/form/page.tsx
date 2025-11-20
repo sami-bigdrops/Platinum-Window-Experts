@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import RadioButtonGroup, { type RadioOption } from '@/components/ui/RadioButtonGroup'
 import ProgressBar from '@/components/ui/ProgressBar'
 import TextInput from '@/components/ui/TextInput'
+import PhoneInput from '@/components/ui/PhoneInput'
 import TrustedForm from '@/components/TrustedForm'
 import PartnerModal from '@/components/ui/PartnerModal'
 
@@ -48,7 +49,7 @@ const FormPage = () => {
   })
   
   const [formData, setFormData] = useState(() => {
-    const defaultData = { homeowner: '', windowCount: '', windowAge: '', planningProcess: '', firstName: '', lastName: '', email: '' }
+    const defaultData = { homeowner: '', windowCount: '', windowAge: '', planningProcess: '', firstName: '', lastName: '', email: '', phoneNumber: '' }
     if (typeof window !== 'undefined') {
       try {
         const savedFormData = localStorage.getItem('windows_form_data')
@@ -150,7 +151,7 @@ const FormPage = () => {
 
   const handleInputChange = (field: string, value: string, autoAdvance = false) => {
     const updatedData = { ...formData, [field]: value }
-    setFormData(updatedData as { homeowner: string; windowCount: string; windowAge: string; planningProcess: string; firstName: string; lastName: string; email: string })
+    setFormData(updatedData as { homeowner: string; windowCount: string; windowAge: string; planningProcess: string; firstName: string; lastName: string; email: string; phoneNumber: string })
 
           if (autoAdvance) {
       setTimeout(() => {
@@ -186,6 +187,7 @@ const FormPage = () => {
               firstName: formData.firstName,
               lastName: formData.lastName,
               email: formData.email,
+              phoneNumber: formData.phoneNumber,
               homeowner: formData.homeowner,
               windowCount: formData.windowCount,
               windowAge: formData.windowAge,
@@ -257,10 +259,11 @@ const FormPage = () => {
       case 4:
         return formData.planningProcess !== ''
       case 5:
-        return (formData.firstName?.trim() || '') !== '' && (formData.lastName?.trim() || '') !== ''
-      case 6:
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return formData.email && emailRegex.test(formData.email)
+        return (formData.firstName?.trim() || '') !== '' && (formData.lastName?.trim() || '') !== '' && formData.email && emailRegex.test(formData.email)
+      case 6:
+        const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/
+        return formData.phoneNumber && phoneRegex.test(formData.phoneNumber)
       default:
         return false
     }
@@ -372,7 +375,7 @@ const FormPage = () => {
                 Who should we prepare this FREE quote for?
               </h2>
               <div className="mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <TextInput
                     id="firstName"
                     label="First Name"
@@ -390,6 +393,15 @@ const FormPage = () => {
                     required
                   />
                 </div>
+                <TextInput
+                  id="email"
+                  label="Email Address"
+                  type="email"
+                  value={formData.email}
+                  onChange={(value) => handleInputChange('email', value)}
+                  placeholder="example@email.com"
+                  required
+                />
               </div>
             </>
           )}
@@ -397,15 +409,14 @@ const FormPage = () => {
           {currentStep === 6 && (
             <>
               <h2 className="text-2xl md:text-3xl font-bold text-[#1e1e1e] mb-8 md:mb-10">
-                Where should we send your information?
+                What is your phone number?
               </h2>
-              <TextInput
-                id="email"
-                label="Email Address"
-                type="email"
-                value={formData.email}
-                onChange={(value) => handleInputChange('email', value)}
-                placeholder="example@email.com"
+              <PhoneInput
+                id="phoneNumber"
+                label="Phone Number"
+                value={formData.phoneNumber}
+                onChange={(value) => handleInputChange('phoneNumber', value)}
+                placeholder="(123) 456-7890"
                 required
                 className="mb-8"
               />
@@ -453,7 +464,7 @@ const FormPage = () => {
           {currentStep === 6 && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <p className="text-xs text-gray-600 leading-relaxed">
-                By submitting this form, I agree to the United Roofing Experts{' '}
+                By submitting this form, I agree to the Platinum Window Experts{' '}
                 <a href="/terms-of-use" className="text-sky-600 hover:text-sky-700 underline" target="_blank" rel="noopener noreferrer">
                   Terms of Use
                 </a>{' '}
@@ -461,7 +472,7 @@ const FormPage = () => {
                 <a href="/privacy-policy" className="text-sky-600 hover:text-sky-700 underline" target="_blank" rel="noopener noreferrer">
                   Privacy Policy
                 </a>
-                . I authorize United Roofing Experts and its{' '}
+                . I authorize Platinum Window Experts and its{' '}
                 <button
                   type="button"
                   onClick={() => setIsPartnerModalOpen(true)}
