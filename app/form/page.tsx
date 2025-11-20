@@ -12,6 +12,30 @@ import PartnerModal from '@/components/ui/PartnerModal'
 
 const FormPage = () => {
   const router = useRouter()
+  const [isAuthorized, setIsAuthorized] = useState(false)
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true)
+
+  // Check access authorization on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const checkAccess = () => {
+      const accessToken = sessionStorage.getItem('form_access_token');
+      if (!accessToken) {
+        // No access token, redirect to home
+        router.replace('/');
+        return;
+      }
+      
+      // Access token exists, allow access
+      setIsAuthorized(true);
+      setIsCheckingAccess(false);
+    };
+    
+    // Defer state update to avoid synchronous setState in effect
+    setTimeout(checkAccess, 0);
+  }, [router]);
+
   const [currentStep, setCurrentStep] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -212,10 +236,11 @@ const FormPage = () => {
             result = { success: false, error: 'Invalid response from server' }
           }
 
-          // Clear localStorage regardless of API response
+          // Clear localStorage and sessionStorage regardless of API response
           if (typeof window !== 'undefined') {
             localStorage.removeItem('windows_form_data')
             localStorage.removeItem('windows_current_step')
+            sessionStorage.removeItem('form_access_token')
           }
 
           // Always redirect to thank you page, regardless of API response
@@ -231,10 +256,11 @@ const FormPage = () => {
           }
         } catch (error) {
           console.error('Error submitting form:', error)
-          // Clear localStorage and redirect on error
+          // Clear localStorage and sessionStorage and redirect on error
           if (typeof window !== 'undefined') {
             localStorage.removeItem('windows_form_data')
             localStorage.removeItem('windows_current_step')
+            sessionStorage.removeItem('form_access_token')
           }
           router.replace('/thankyou')
         }
@@ -292,6 +318,20 @@ const FormPage = () => {
     { id: 'READY_TO_INSTALL', label: 'Ready to Install' },
     { id: 'JUST_GETTING_PRICE', label: 'Just getting a price' },
   ]
+
+  // Show loading state while checking access
+  if (isCheckingAccess) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 flex items-center justify-center">
+        <div className="text-sky-600 text-xl font-semibold">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show nothing if not authorized (redirect is in progress)
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 px-4 pt-12 md:pt-24 pb-8 md:pb-12">

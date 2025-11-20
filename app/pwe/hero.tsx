@@ -53,6 +53,11 @@ export default function Hero() {
 
   const handleSubmit = () => {
     if (isValidZipCode) {
+      // Set access token to allow form access
+      if (typeof window !== 'undefined') {
+        const accessToken = crypto.randomUUID();
+        sessionStorage.setItem('form_access_token', accessToken);
+      }
       router.push('/form');
     }
   };
