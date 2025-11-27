@@ -5,7 +5,7 @@ import Image from 'next/image'
 export default function Info() {
   return (
     <div
-      className='info w-full h-full p-4 md:p-9  lg:py-13 lg:px-13 xl:p-10  xl:px-45 xl:py-15'
+      className='info w-full h-full p-4 md:p-9 lg:py-13 lg:px-13 xl:px-55 xl:py-15'
       style={{ background: '#F3F4F6' }}
     >
       <div className='container mx-auto'>
@@ -35,7 +35,7 @@ export default function Info() {
 
           </div>
           <div className="info-container w-full max-w-6xl mx-auto md:w-[50%]">
-            <div className="relative w-full h-[280px] md:h-[200px] lg:h-[250px] xl:h-[300px] xl:w-[480px] overflow-hidden">
+            <div className="relative w-full h-[280px] md:h-[200px] lg:h-[250px] xl:h-[300px] xl:w-[550px] overflow-hidden">
               <Image
                 src={INFO_CONTENT.backgroundImage}
                 alt="Beautiful house with windows"

@@ -5,7 +5,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="text-white p-6 md:px-6 lg:px-8 lg:pt-13 lg:pb-6 xl:px-25 xl:pb-5 xl:pt-15 " style={{ background: 'rgba(39, 80, 134, 1)' }}>
+    <footer className="text-white p-6 md:px-6 lg:px-8 lg:pt-13 lg:pb-6 xl:px-45 xl:pb-5 xl:pt-15 " style={{ background: 'rgba(39, 80, 134, 1)' }}>
       <div className="container mx-auto">
         <div className="content flex flex-col-reverse items-center justify-center md:flex-row-reverse md:justify-between gap-5 ">
           

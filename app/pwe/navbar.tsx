@@ -70,14 +70,14 @@ export default function Navbar() {
 
       {/* DESKTOP NAVBAR */}
       <div className="hidden md:block">
-        <div className="bg-white px-10 xl:px-19 xl:py-7 py-6">
+        <div className="bg-white px-10 xl:px-45 xl:py-7 py-6 mx-auto">
           <div className="mx-auto flex justify-between items-center">
             <Link href="/"><Image
               src="/logo.svg"
               alt="Platinum Window Expert"
               width={120}
               height={30}
-              className="h-9 lg:h-10 xl:h-11 w-auto"
+              className="h-9 lg:h-10 xl:h-14 w-auto"
             /></Link>
 
             {!isThankYouPage && (

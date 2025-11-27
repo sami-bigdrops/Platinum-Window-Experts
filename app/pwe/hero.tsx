@@ -69,13 +69,13 @@ export default function Hero() {
   };
   return (
     <div
-      className="hero-section w-full h-full p-4 py-8 md:p-8 md:py-13 lg:p-10 lg:py-15 xl:p-16 xl:px-25 "
+      className="hero-section w-full h-full p-4 py-8 md:p-8 md:py-13 lg:p-10 lg:py-15 xl:p-16 xl:px-45 "
       style={{
         background:
           "linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%), url('/hero-bg.webp') lightgray 50% / cover no-repeat",
       }}
     >
-      <div className="container mx-auto">
+      <div className="container  mx-auto">
         <div className="hero-content w-full">
           <div className="hero-container relative z-10 flex flex-col items-center justify-center md:items-start md:justify-start gap-5 text-center">
             <div className="title">
@@ -189,8 +189,8 @@ export default function Hero() {
                </div>
             </div>
 
-            <div className="hero-right absolute top-5 lg:top-25 2xl:right-20 xl:top-20 right-0 z-0 hidden md:block">
-              <div className="md:flex md:flex-col lg:flex-row lg:gap-4 md:items-center md:justify-center md:gap-4 lg:gap-6   hidden md:block">
+            <div className="hero-right absolute top-5 lg:top-25 xl:top-20 right-0 z-0 hidden md:block">
+              <div className="md:flex md:flex-col lg:flex-row lg:gap-4 md:items-center md:justify-center md:gap-4 hidden">
                 <div className="flex-box-1 flex flex-col w-full lg:max-w-[300px] xl:max-w-[350px] lg:absolute lg:right-55 xl:right-58 lg:top-10 xl:top-9 items-center justify-center gap-4 lg:gap-6 xl:gap-8">
                   <div
                     className="stat-box stat-box-1 flex flex-col items-start justify-start gap-1 xl:gap-2  pt-15  p-7   lg:pt-30 xl:pt-35"

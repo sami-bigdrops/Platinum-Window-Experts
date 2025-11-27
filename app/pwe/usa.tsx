@@ -5,7 +5,7 @@ import Image from 'next/image'
 export default function USA() {
   return (
 
-      <div className="usa-section w-full h-full p-4 md:p-8 lg:px-10  xl:px-25 " style={{ background: '#F3F4F6' }}>
+      <div className="usa-section w-full h-full p-4 md:p-8 lg:px-10  xl:px-45 " style={{ background: '#F3F4F6' }}>
         <div className="container mx-auto">
           <div className="content">
             <div className="made-in-usa-section flex flex-col items-start justify-start gap-3">
