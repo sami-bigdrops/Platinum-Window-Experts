@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const { firstName, lastName, email, phoneNumber, homeowner, projectNature, windowCount, workDone, address, city, state, zipCode, subid1, subid2, trustedformCertUrl } = body
 
     // Validate required fields
-    if (!firstName || !lastName || !email || !phoneNumber || !homeowner || !projectNature || !windowCount || !workDone || !address || !city || !state) {
+    if (!firstName || !lastName || !email || !phoneNumber || !homeowner || !projectNature || !windowCount || !workDone || !address || !city || !state || !zipCode) {
       const missingFields = [];
       if (!firstName) missingFields.push('firstName');
       if (!lastName) missingFields.push('lastName');
@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
       if (!address) missingFields.push('address');
       if (!city) missingFields.push('city');
       if (!state) missingFields.push('state');
+      if (!zipCode) missingFields.push('zipCode');
       
       return NextResponse.json(
         { error: 'All required fields are missing', missingFields },

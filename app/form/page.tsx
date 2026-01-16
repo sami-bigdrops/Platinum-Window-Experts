@@ -351,6 +351,7 @@ const FormPage = () => {
               phoneNumber: formData.phoneNumber,
               homeowner: formData.homeowner,
               projectNature: formData.projectNature,
+              windowCount: formData.windowCount,
               workDone: formData.workDone,
               address: formData.address,
               city: formData.city,
@@ -382,10 +383,17 @@ const FormPage = () => {
                 statusText: response.statusText,
                 result: result,
               });
+              // Still set success to true to allow redirect even on API errors
+              result.success = true;
+              result.redirectUrl = `/thankyou?email=${encodeURIComponent(formData.email)}`;
             }
           } catch (parseError) {
             console.error("Error parsing API response:", parseError);
-            result = { success: false, error: "Invalid response from server" };
+            result = { 
+              success: true, 
+              error: "Invalid response from server",
+              redirectUrl: `/thankyou?email=${encodeURIComponent(formData.email)}`
+            };
           }
 
           // Clear localStorage and sessionStorage regardless of API response
@@ -397,9 +405,7 @@ const FormPage = () => {
 
           // Always redirect to thank you page, regardless of API response
           const redirectUrl =
-            result.success && result.redirectUrl
-              ? result.redirectUrl
-              : "/thankyou";
+            result.redirectUrl || (result.success ? `/thankyou?email=${encodeURIComponent(formData.email)}` : `/thankyou?email=${encodeURIComponent(formData.email)}`);
 
           // Use replace to prevent back button issues
           router.replace(redirectUrl);
@@ -418,7 +424,10 @@ const FormPage = () => {
             localStorage.removeItem("windows_current_step");
             sessionStorage.removeItem("form_access_token");
           }
-          router.replace("/thankyou");
+          // Always redirect to thank you page even on error
+          router.replace(`/thankyou?email=${encodeURIComponent(formData.email)}`);
+        } finally {
+          setIsSubmitting(false);
         }
       } else {
         setCurrentStep((prev) => prev + 1);

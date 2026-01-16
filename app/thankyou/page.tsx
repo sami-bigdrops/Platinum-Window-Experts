@@ -8,16 +8,12 @@ import { useSearchParams } from 'next/navigation'
 
 const ads = [
   {
-    image: '/ad4.jpg',
+    image: '/2.png',
+    link: 'https://www.platinum-home-track.com/28KL6/49FHNSP/?uid=115&sub1=pwe_${utm_source}&sub2=${utm_id}'
+  },
+  {
+    image: '/3.jpg',
     link: 'https://www.platinum-home-track.com/28KL6/49FHNSP/?uid=113&sub1=pwe_${utm_source}&sub2=${utm_id}'
-  },
-  {
-    image: '/ad3.jpg',
-    link: 'https://www.platinum-home-track.com/28KL6/49FHNSP/?uid=114&sub1=pwe_${utm_source}&sub2=${utm_id}'
-  },
-  {
-    image: '/ad2.png',
-    link: 'https://www.platinum-home-track.com/28KL6/49FHNSP/?sub1=pwe_${utm_source}&sub2=${utm_id}'
   }
 ]
 
