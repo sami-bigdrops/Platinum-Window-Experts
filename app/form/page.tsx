@@ -1,211 +1,281 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { ArrowLeft, Columns2, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import RadioButtonGroup, { type RadioOption } from '@/components/ui/RadioButtonGroup'
-import ProgressBar from '@/components/ui/ProgressBar'
-import TextInput from '@/components/ui/TextInput'
-import PhoneInput from '@/components/ui/PhoneInput'
-import TrustedForm from '@/components/TrustedForm'
-import PartnerModal from '@/components/ui/PartnerModal'
+import React, { useState, useEffect } from "react";
+import { ArrowLeft, Grid2x2, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import RadioButtonGroup, {
+  type RadioOption,
+} from "@/components/ui/RadioButtonGroup";
+import ProgressBar from "@/components/ui/ProgressBar";
+import TextInput from "@/components/ui/TextInput";
+import PhoneInput from "@/components/ui/PhoneInput";
+import AddressInput from "@/components/ui/AddressInput";
+import TrustedForm from "@/components/TrustedForm";
+import PartnerModal from "@/components/ui/PartnerModal";
 
 const FormPage = () => {
-  const router = useRouter()
-  const [isAuthorized, setIsAuthorized] = useState(false)
-  const [isCheckingAccess, setIsCheckingAccess] = useState(true)
+  const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
 
   // Check access authorization on mount
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const checkAccess = () => {
-      const accessToken = sessionStorage.getItem('form_access_token');
+      const accessToken = sessionStorage.getItem("form_access_token");
       if (!accessToken) {
         // No access token, redirect to home
-        router.replace('/');
+        router.replace("/");
         return;
       }
-      
+
       // Access token exists, allow access
       setIsAuthorized(true);
       setIsCheckingAccess(false);
     };
-    
+
     // Defer state update to avoid synchronous setState in effect
     setTimeout(checkAccess, 0);
   }, [router]);
 
   const [currentStep, setCurrentStep] = useState(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       try {
-        const savedCurrentStep = localStorage.getItem('windows_current_step')
+        const savedCurrentStep = localStorage.getItem("windows_current_step");
         if (savedCurrentStep) {
-          const step = parseInt(savedCurrentStep, 10)
-          if (step >= 1) return step
+          const step = parseInt(savedCurrentStep, 10);
+          if (step >= 1) return step;
         }
       } catch (error) {
-        console.error('Error loading current step from localStorage:', error)
+        console.error("Error loading current step from localStorage:", error);
       }
     }
-    return 1
-  })
-  
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [trustedFormCertUrl, setTrustedFormCertUrl] = useState('')
-  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false)
-  
+    return 1;
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [trustedFormCertUrl, setTrustedFormCertUrl] = useState("");
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+  const [cityName] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("city") || "";
+    }
+    return "";
+  });
+  const [homeownerCount] = useState(() => {
+    // Generate a random number between 3 and 5 for homeowner count
+    return Math.floor(Math.random() * 3) + 3;
+  });
+
   // Initialize UTM parameters from URL or cookies
   const [subid1, setSubid1] = useState(() => {
-    if (typeof window === 'undefined') return ''
-    const urlParams = new URLSearchParams(window.location.search)
-    return urlParams.get('utm_source') || ''
-  })
+    if (typeof window === "undefined") return "";
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("utm_source") || "";
+  });
   const [subid2, setSubid2] = useState(() => {
-    if (typeof window === 'undefined') return ''
-    const urlParams = new URLSearchParams(window.location.search)
-    return urlParams.get('utm_id') || ''
-  })
+    if (typeof window === "undefined") return "";
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("utm_id") || "";
+  });
   const [subid3, setSubid3] = useState(() => {
-    if (typeof window === 'undefined') return ''
-    const urlParams = new URLSearchParams(window.location.search)
-    return urlParams.get('utm_s1') || ''
-  })
-  
+    if (typeof window === "undefined") return "";
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("utm_s1") || "";
+  });
+
   const [formData, setFormData] = useState(() => {
-    const defaultData = { homeowner: '', windowCount: '', windowAge: '', planningProcess: '', firstName: '', lastName: '', email: '', phoneNumber: '' }
-    if (typeof window !== 'undefined') {
+    const defaultData = {
+      projectNature: "",
+      homeowner: "",
+      windowCount: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      workDone: "",
+      address: "",
+      city: "",
+      state: "",
+    };
+    if (typeof window !== "undefined") {
       try {
-        const savedFormData = localStorage.getItem('windows_form_data')
+        const savedFormData = localStorage.getItem("windows_form_data");
         if (savedFormData) {
-          const parsedData = JSON.parse(savedFormData)
-          return { 
-            ...defaultData, 
-            ...parsedData,
-            firstName: parsedData.firstName || '',
-            lastName: parsedData.lastName || '',
-            email: parsedData.email || ''
-          }
+          const parsedData = JSON.parse(savedFormData);
+          return {
+            ...defaultData,
+            projectNature: parsedData.projectNature || "",
+            homeowner: parsedData.homeowner || "",
+            windowCount: parsedData.windowCount || "",
+            firstName: parsedData.firstName || "",
+            lastName: parsedData.lastName || "",
+            email: parsedData.email || "",
+            phoneNumber: parsedData.phoneNumber || "",
+            workDone: parsedData.workDone || "",
+            // Always start with empty address, city, state (not stored in localStorage)
+            address: "",
+            city: "",
+            state: "",
+          };
         }
       } catch (error) {
-        console.error('Error loading form data from localStorage:', error)
+        console.error("Error loading form data from localStorage:", error);
       }
     }
-    return defaultData
-  })
+    return defaultData;
+  });
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       try {
-        localStorage.setItem('windows_form_data', JSON.stringify(formData))
+        // Exclude address, city, and state from localStorage
+        const dataToSave = {
+          projectNature: formData.projectNature,
+          homeowner: formData.homeowner,
+          windowCount: formData.windowCount,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          workDone: formData.workDone,
+        };
+        localStorage.setItem("windows_form_data", JSON.stringify(dataToSave));
       } catch (error) {
-        console.error('Error saving form data to localStorage:', error)
+        console.error("Error saving form data to localStorage:", error);
       }
     }
-  }, [formData])
+  }, [formData]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       try {
-        localStorage.setItem('windows_current_step', currentStep.toString())
+        localStorage.setItem("windows_current_step", currentStep.toString());
       } catch (error) {
-        console.error('Error saving current step to localStorage:', error)
+        console.error("Error saving current step to localStorage:", error);
       }
     }
-  }, [currentStep])
+  }, [currentStep]);
+
 
   // Handle TrustedForm certificate data
   const handleTrustedFormReady = (certUrl: string) => {
-    setTrustedFormCertUrl(certUrl)
-  }
+    setTrustedFormCertUrl(certUrl);
+  };
 
   // UTM Parameter Detection with Cookie Fallback
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
     // Helper function to get cookie value
     const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`
-      const parts = value.split(`; ${name}=`)
-      if (parts.length === 2) return parts.pop()?.split(';').shift() || ''
-      return ''
-    }
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(";").shift() || "";
+      return "";
+    };
 
     // Helper function to set cookie
     const setCookie = (name: string, value: string, days: number = 30) => {
-      const expires = new Date()
-      expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000))
-      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`
-    }
+      const expires = new Date();
+      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+    };
 
-    const urlParams = new URLSearchParams(window.location.search)
-    const utmSource = urlParams.get('utm_source') || ''
-    const utmId = urlParams.get('utm_id') || ''
-    const utmS1 = urlParams.get('utm_s1') || ''
+    const urlParams = new URLSearchParams(window.location.search);
+    const utmSource = urlParams.get("utm_source") || "";
+    const utmId = urlParams.get("utm_id") || "";
+    const utmS1 = urlParams.get("utm_s1") || "";
 
     // If URL parameters exist, use them and save to cookies
     if (utmSource || utmId || utmS1) {
       if (utmSource) {
-        setCookie('subid1', utmSource)
-        setTimeout(() => setSubid1(utmSource), 0)
+        setCookie("subid1", utmSource);
+        setTimeout(() => setSubid1(utmSource), 0);
       }
       if (utmId) {
-        setCookie('subid2', utmId)
-        setTimeout(() => setSubid2(utmId), 0)
+        setCookie("subid2", utmId);
+        setTimeout(() => setSubid2(utmId), 0);
       }
       if (utmS1) {
-        setCookie('subid3', utmS1)
-        setTimeout(() => setSubid3(utmS1), 0)
+        setCookie("subid3", utmS1);
+        setTimeout(() => setSubid3(utmS1), 0);
       }
-      
+
       // Clean the URL by removing UTM parameters
-      const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname
-      window.history.replaceState({}, document.title, cleanUrl)
+      const cleanUrl =
+        window.location.protocol +
+        "//" +
+        window.location.host +
+        window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
     } else {
       // If no URL parameters, try to read from cookies
-      const cookieSubid1 = getCookie('subid1') || ''
-      const cookieSubid2 = getCookie('subid2') || ''
-      const cookieSubid3 = getCookie('subid3') || ''
-      
-      if (cookieSubid1) setTimeout(() => setSubid1(cookieSubid1), 0)
-      if (cookieSubid2) setTimeout(() => setSubid2(cookieSubid2), 0)
-      if (cookieSubid3) setTimeout(() => setSubid3(cookieSubid3), 0)
+      const cookieSubid1 = getCookie("subid1") || "";
+      const cookieSubid2 = getCookie("subid2") || "";
+      const cookieSubid3 = getCookie("subid3") || "";
+
+      if (cookieSubid1) setTimeout(() => setSubid1(cookieSubid1), 0);
+      if (cookieSubid2) setTimeout(() => setSubid2(cookieSubid2), 0);
+      if (cookieSubid3) setTimeout(() => setSubid3(cookieSubid3), 0);
     }
-  }, [])
+  }, []);
 
-  const handleInputChange = (field: string, value: string, autoAdvance = false) => {
-    const updatedData = { ...formData, [field]: value }
-    setFormData(updatedData as { homeowner: string; windowCount: string; windowAge: string; planningProcess: string; firstName: string; lastName: string; email: string; phoneNumber: string })
+  const handleInputChange = (
+    field: string,
+    value: string,
+    autoAdvance = false
+  ) => {
+    const updatedData = { ...formData, [field]: value };
+    setFormData(
+      updatedData as {
+        projectNature: string;
+        homeowner: string;
+        windowCount: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phoneNumber: string;
+        workDone: string;
+        address: string;
+        city: string;
+        state: string;
+      }
+    );
 
-          if (autoAdvance) {
+    if (autoAdvance) {
       setTimeout(() => {
         setCurrentStep((prevStep) => {
-          const nextStep = prevStep + 1
+          const nextStep = prevStep + 1;
           // Only auto-advance if not on the last step
-          if (nextStep <= 6) {
-            return nextStep
+          if (nextStep <= 7) {
+            return nextStep;
           }
           // Don't auto-submit, let user click the button
-          return prevStep
-        })
-      }, 150)
+          return prevStep;
+        });
+      }, 150);
     }
-  }
+  };
 
   const handleNext = async () => {
     if (isStepValid()) {
-      if (currentStep === 6) {
-        setIsSubmitting(true)
-        
+      if (currentStep === 7) {
+        setIsSubmitting(true);
+
         try {
           // Get zipCode from localStorage (set from hero page)
-          const zipCode = typeof window !== 'undefined' ? localStorage.getItem('zipCode') || '' : ''
-          
+          const zipCode =
+            typeof window !== "undefined"
+              ? localStorage.getItem("zipCode") || ""
+              : "";
+
           // Submit form data to API
-          const response = await fetch('/api/submit-form', {
-            method: 'POST',
+          const response = await fetch("/api/submit-form", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               firstName: formData.firstName,
@@ -213,111 +283,143 @@ const FormPage = () => {
               email: formData.email,
               phoneNumber: formData.phoneNumber,
               homeowner: formData.homeowner,
-              windowCount: formData.windowCount,
-              windowAge: formData.windowAge,
-              planningProcess: formData.planningProcess,
+              projectNature: formData.projectNature,
+              workDone: formData.workDone,
+              address: formData.address,
+              city: formData.city,
+              state: formData.state,
               zipCode: zipCode,
               subid1: subid1,
               subid2: subid2,
               subid3: subid3,
               trustedformCertUrl: trustedFormCertUrl,
             }),
-          })
+          });
 
-          let result
+          let result;
           try {
-            result = await response.json()
+            const responseText = await response.text();
+            try {
+              result = JSON.parse(responseText);
+            } catch {
+              result = { success: response.ok, error: responseText || "Invalid response from server" };
+            }
             // Ensure result has success field
-            if (typeof result.success === 'undefined') {
-              result.success = response.ok
+            if (typeof result.success === "undefined") {
+              result.success = response.ok;
+            }
+            // Log error details for debugging
+            if (!response.ok || !result.success) {
+              console.error("API Error Response:", {
+                status: response.status,
+                statusText: response.statusText,
+                result: result,
+              });
             }
           } catch (parseError) {
-            console.error('Error parsing API response:', parseError)
-            result = { success: false, error: 'Invalid response from server' }
+            console.error("Error parsing API response:", parseError);
+            result = { success: false, error: "Invalid response from server" };
           }
 
           // Clear localStorage and sessionStorage regardless of API response
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('windows_form_data')
-            localStorage.removeItem('windows_current_step')
-            sessionStorage.removeItem('form_access_token')
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("windows_form_data");
+            localStorage.removeItem("windows_current_step");
+            sessionStorage.removeItem("form_access_token");
           }
 
           // Always redirect to thank you page, regardless of API response
-          const redirectUrl = result.success && result.redirectUrl 
-            ? result.redirectUrl 
-            : '/thankyou'
-          
+          const redirectUrl =
+            result.success && result.redirectUrl
+              ? result.redirectUrl
+              : "/thankyou";
+
           // Use replace to prevent back button issues
-          router.replace(redirectUrl)
-          
+          router.replace(redirectUrl);
+
           if (!result.success) {
-            console.error('Form submission error:', result.error || 'Unknown error')
+            console.error(
+              "Form submission error:",
+              result.error || "Unknown error"
+            );
           }
         } catch (error) {
-          console.error('Error submitting form:', error)
+          console.error("Error submitting form:", error);
           // Clear localStorage and sessionStorage and redirect on error
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('windows_form_data')
-            localStorage.removeItem('windows_current_step')
-            sessionStorage.removeItem('form_access_token')
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("windows_form_data");
+            localStorage.removeItem("windows_current_step");
+            sessionStorage.removeItem("form_access_token");
           }
-          router.replace('/thankyou')
+          router.replace("/thankyou");
         }
       } else {
-        setCurrentStep(prev => prev + 1)
+        setCurrentStep((prev) => prev + 1);
       }
     }
-  }
+  };
 
   const handleBack = () => {
-    setCurrentStep(prev => prev - 1)
-  }
+    setCurrentStep((prev) => prev - 1);
+  };
 
   const isStepValid = () => {
     switch (currentStep) {
       case 1:
-        return formData.homeowner !== ''
+        return formData.homeowner !== "";
       case 2:
-        return formData.windowCount !== ''
+        return formData.projectNature !== "";
       case 3:
-        return formData.windowAge !== ''
+        return formData.windowCount !== "";
       case 4:
-        return formData.planningProcess !== ''
+        return formData.workDone !== "";
       case 5:
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return (formData.firstName?.trim() || '') !== '' && (formData.lastName?.trim() || '') !== '' && formData.email && emailRegex.test(formData.email)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return (
+          (formData.firstName?.trim() || "") !== "" &&
+          (formData.lastName?.trim() || "") !== "" &&
+          formData.email &&
+          emailRegex.test(formData.email)
+        );
       case 6:
-        const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/
-        return formData.phoneNumber && phoneRegex.test(formData.phoneNumber)
+        return (
+          formData.address.trim() !== "" &&
+          formData.city.trim() !== "" &&
+          formData.state.trim() !== ""
+        );
+      case 7:
+        const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
+        return (
+          formData.phoneNumber &&
+          phoneRegex.test(formData.phoneNumber)
+        );
       default:
-        return false
+        return false;
     }
-  }
+  };
+
+  const projectNatureOptions: RadioOption[] = [
+    { id: "home_window_replacement", label: "Install new window(s)" },
+    { id: "home_window_repair", label: "Repair existing window(s)" },
+  ];
 
   const homeownerOptions: RadioOption[] = [
-    { id: 'YES', label: 'Yes' },
-    { id: 'NO', label: 'No' },
-  ]
+    { id: "YES", label: "Yes" },
+    { id: "NO", label: "No" },
+  ];
 
   const windowCountOptions: RadioOption[] = [
-    { id: '1_2', label: '1 - 2 Windows' },
-    { id: '3_5', label: '3 - 5 Windows' },
-    { id: '6_PLUS', label: '6+ Windows' },
-    { id: 'NOT_SURE', label: 'I am not sure' },
-  ]
+    { id: "1_2", label: "1 - 2 Windows" },
+    { id: "3_5", label: "3 - 5 Windows" },
+    { id: "6_plus", label: "6+ Windows" },
+    { id: "not_sure", label: "I am not sure" },
+  ];
 
-  const windowAgeOptions: RadioOption[] = [
-    { id: 'LESS_THAN_10', label: 'Less than 10 years' },
-    { id: '10_15', label: '10 - 15 years' },
-    { id: 'OVER_15', label: 'Over 15+ years' },
-    { id: 'NOT_SURE', label: 'I am not sure' },
-  ]
-
-  const planningProcessOptions: RadioOption[] = [
-    { id: 'READY_TO_INSTALL', label: 'Ready to Install' },
-    { id: 'JUST_GETTING_PRICE', label: 'Just getting a price' },
-  ]
+  const workDoneOptions: RadioOption[] = [
+    { id: "immediately", label: "Immediately" },
+    { id: "1_6_months", label: "1-6 Months" },
+    { id: "not_sure", label: "Not Sure / Still Planning" },
+  ];
 
   // Show loading state while checking access
   if (isCheckingAccess) {
@@ -334,17 +436,30 @@ const FormPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 px-4 pt-12 md:pt-24 pb-8 md:pb-12">
-      <div className="w-full max-w-2xl mx-auto">
-        <ProgressBar 
+    <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 px-4 pt-12 pb-8 md:pb-12">
+      <div className="w-full max-w-3xl mx-auto">
+        {cityName && homeownerCount > 0 && (
+          <div className="mb-4 text-center">
+            <p className="text-sm md:text-base text-gray-600 font-medium max-w-lg mx-auto">
+              <span className="text-sky-600 font-semibold">
+                {homeownerCount} people from {cityName}
+              </span>{" "}
+              got their FREE quote in the last 5 minutes from{" "}
+              <span className="text-sky-600 font-semibold">
+                Platinum Window Experts
+              </span>
+            </p>
+          </div>
+        )}
+        <ProgressBar
           currentStep={currentStep}
-          totalSteps={6}
-          icon={<Columns2 size={20} className="text-sky-600" />}
+          totalSteps={7}
+          icon={<Grid2x2 size={20} className="text-sky-600" />}
         />
 
         <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-6 md:p-10">
           <TrustedForm onCertUrlReady={handleTrustedFormReady} />
-          
+
           {currentStep === 1 && (
             <>
               <h2 className="text-2xl md:text-3xl font-bold text-[#1e1e1e] mb-8 md:mb-10">
@@ -354,7 +469,9 @@ const FormPage = () => {
                 label="Select an Option"
                 options={homeownerOptions}
                 value={formData.homeowner}
-                onChange={(value) => handleInputChange('homeowner', value, true)}
+                onChange={(value) =>
+                  handleInputChange("homeowner", value, true)
+                }
                 required
                 className="mb-8"
               />
@@ -364,13 +481,15 @@ const FormPage = () => {
           {currentStep === 2 && (
             <>
               <h2 className="text-2xl md:text-3xl font-bold text-[#1e1e1e] mb-8 md:mb-10">
-                How many windows do you need to repair/replace?
+                What is the nature of this project?
               </h2>
               <RadioButtonGroup
                 label="Select an Option"
-                options={windowCountOptions}
-                value={formData.windowCount}
-                onChange={(value) => handleInputChange('windowCount', value, true)}
+                options={projectNatureOptions}
+                value={formData.projectNature}
+                onChange={(value) =>
+                  handleInputChange("projectNature", value, true)
+                }
                 required
                 className="mb-8"
               />
@@ -380,13 +499,17 @@ const FormPage = () => {
           {currentStep === 3 && (
             <>
               <h2 className="text-2xl md:text-3xl font-bold text-[#1e1e1e] mb-8 md:mb-10">
-                How old are your windows?
+                {formData.projectNature === "home_window_replacement"
+                  ? "How many windows do you need to install?"
+                  : "How many windows do you need to repair?"}
               </h2>
               <RadioButtonGroup
                 label="Select an Option"
-                options={windowAgeOptions}
-                value={formData.windowAge}
-                onChange={(value) => handleInputChange('windowAge', value, true)}
+                options={windowCountOptions}
+                value={formData.windowCount}
+                onChange={(value) =>
+                  handleInputChange("windowCount", value, true)
+                }
                 required
                 className="mb-8"
               />
@@ -396,18 +519,21 @@ const FormPage = () => {
           {currentStep === 4 && (
             <>
               <h2 className="text-2xl md:text-3xl font-bold text-[#1e1e1e] mb-8 md:mb-10">
-                Where are you in the planning process?
+                When do you need this work done?
               </h2>
               <RadioButtonGroup
                 label="Select an Option"
-                options={planningProcessOptions}
-                value={formData.planningProcess}
-                onChange={(value) => handleInputChange('planningProcess', value, true)}
+                options={workDoneOptions}
+                value={formData.workDone}
+                onChange={(value) =>
+                  handleInputChange("workDone", value, true)
+                }
                 required
                 className="mb-8"
               />
             </>
           )}
+
 
           {currentStep === 5 && (
             <>
@@ -420,7 +546,7 @@ const FormPage = () => {
                     id="firstName"
                     label="First Name"
                     value={formData.firstName}
-                    onChange={(value) => handleInputChange('firstName', value)}
+                    onChange={(value) => handleInputChange("firstName", value)}
                     placeholder="John"
                     required
                   />
@@ -428,7 +554,7 @@ const FormPage = () => {
                     id="lastName"
                     label="Last Name"
                     value={formData.lastName}
-                    onChange={(value) => handleInputChange('lastName', value)}
+                    onChange={(value) => handleInputChange("lastName", value)}
                     placeholder="Doe"
                     required
                   />
@@ -438,7 +564,7 @@ const FormPage = () => {
                   label="Email Address"
                   type="email"
                   value={formData.email}
-                  onChange={(value) => handleInputChange('email', value)}
+                  onChange={(value) => handleInputChange("email", value)}
                   placeholder="example@email.com"
                   required
                 />
@@ -449,17 +575,78 @@ const FormPage = () => {
           {currentStep === 6 && (
             <>
               <h2 className="text-2xl md:text-3xl font-bold text-[#1e1e1e] mb-8 md:mb-10">
-                What is your phone number?
+                Address Information
               </h2>
-              <PhoneInput
-                id="phoneNumber"
-                label="Phone Number"
-                value={formData.phoneNumber}
-                onChange={(value) => handleInputChange('phoneNumber', value)}
-                placeholder="(123) 456-7890"
-                required
-                className="mb-8"
-              />
+              <div className="mb-8 space-y-6">
+                <AddressInput
+                  id="address"
+                  label="Address"
+                  value={formData.address}
+                  onChange={(value) => handleInputChange("address", value)}
+                  onAddressSelect={(address, city, state) => {
+                    // Update all three fields in a single state update to avoid React batching issues
+                    setFormData((prevData) => {
+                      const updated = {
+                        ...prevData,
+                        address: address,
+                        city: city,
+                        state: state,
+                      };
+                      return updated as {
+                        projectNature: string;
+                        homeowner: string;
+                        windowCount: string;
+                        firstName: string;
+                        lastName: string;
+                        email: string;
+                        phoneNumber: string;
+                        workDone: string;
+                        address: string;
+                        city: string;
+                        state: string;
+                      };
+                    });
+                  }}
+                  placeholder="Enter your address"
+                  required
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <TextInput
+                    id="city"
+                    label="City"
+                    value={formData.city}
+                    onChange={(value) => handleInputChange("city", value)}
+                    placeholder="City"
+                    required
+                  />
+                  <TextInput
+                    id="state"
+                    label="State"
+                    value={formData.state}
+                    onChange={(value) => handleInputChange("state", value)}
+                    placeholder="State"
+                    required
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {currentStep === 7 && (
+            <>
+              <h2 className="text-2xl md:text-3xl font-bold text-[#1e1e1e] mb-8 md:mb-10">
+                Phone Number
+              </h2>
+              <div className="mb-8 space-y-6">
+                <PhoneInput
+                  id="phoneNumber"
+                  label="Phone Number"
+                  value={formData.phoneNumber}
+                  onChange={(value) => handleInputChange("phoneNumber", value)}
+                  placeholder="(123) 456-7890"
+                  required
+                />
+              </div>
             </>
           )}
 
@@ -479,12 +666,14 @@ const FormPage = () => {
               onClick={handleNext}
               disabled={!isStepValid() || isSubmitting}
               className={`
-                ${currentStep > 1 ? 'flex-1' : 'w-full'} py-4 rounded-xl font-bold text-base md:text-lg
+                ${
+                  currentStep > 1 ? "flex-1" : "w-full"
+                } py-4 rounded-xl font-bold text-base md:text-lg
                 transition-all duration-300 flex items-center justify-center gap-2
                 ${
                   !isStepValid() || isSubmitting
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-sky-600 text-white hover:bg-sky-700 shadow-lg hover:shadow-xl hover:scale-105 cursor-pointer'
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-sky-600 text-white hover:bg-sky-700 shadow-lg hover:shadow-xl hover:scale-105 cursor-pointer"
                 }
               `}
             >
@@ -493,34 +682,47 @@ const FormPage = () => {
                   <Loader2 size={20} className="animate-spin" />
                   Submitting...
                 </>
-              ) : currentStep === 6 ? (
-                'Submit Details'
+              ) : currentStep === 7 ? (
+                "Submit Details"
               ) : (
-                'Continue'
+                "Continue"
               )}
             </button>
           </div>
 
-          {currentStep === 6 && (
+          {currentStep === 7 && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <p className="text-xs text-gray-600 leading-relaxed">
-                By submitting this form, I agree to the Platinum Window Experts{' '}
-                <a href="/terms-of-use" className="text-sky-600 hover:text-sky-700 underline" target="_blank" rel="noopener noreferrer">
+                By submitting this form, I agree to the Platinum Window Experts{" "}
+                <a
+                  href="/terms-of-use"
+                  className="text-sky-600 hover:text-sky-700 underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Terms of Use
-                </a>{' '}
-                and{' '}
-                <a href="/privacy-policy" className="text-sky-600 hover:text-sky-700 underline" target="_blank" rel="noopener noreferrer">
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy-policy"
+                  className="text-sky-600 hover:text-sky-700 underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Privacy Policy
                 </a>
-                . I authorize Platinum Window Experts and its{' '}
+                . I authorize Platinum Window Experts and its{" "}
                 <button
                   type="button"
                   onClick={() => setIsPartnerModalOpen(true)}
                   className="text-sky-600 hover:text-sky-700 underline cursor-pointer"
                 >
                   partners
-                </button>{' '}
-                to send me marketing text messages or phone calls at the number provided, including those made with an autodialer. Standard message and data rates may apply. Message frequency varies. Opt-out anytime by replying STOP or using the unsubscribe link.
+                </button>{" "}
+                to send me marketing text messages or phone calls at the number
+                provided, including those made with an autodialer. Standard
+                message and data rates may apply. Message frequency varies.
+                Opt-out anytime by replying STOP or using the unsubscribe link.
               </p>
             </div>
           )}
@@ -528,22 +730,24 @@ const FormPage = () => {
       </div>
 
       {/* Partner Modal */}
-      <PartnerModal 
-        isOpen={isPartnerModalOpen} 
-        onClose={() => setIsPartnerModalOpen(false)} 
+      <PartnerModal
+        isOpen={isPartnerModalOpen}
+        onClose={() => setIsPartnerModalOpen(false)}
       />
     </div>
-  )
-}
+  );
+};
 
 export default function FormPageWrapper() {
   return (
-    <React.Suspense fallback={
-      <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 flex items-center justify-center">
-        <div className="text-sky-600 text-xl font-semibold">Loading...</div>
-      </div>
-    }>
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 flex items-center justify-center">
+          <div className="text-sky-600 text-xl font-semibold">Loading...</div>
+        </div>
+      }
+    >
       <FormPage />
     </React.Suspense>
-  )
+  );
 }

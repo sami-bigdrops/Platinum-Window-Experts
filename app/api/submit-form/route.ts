@@ -4,19 +4,21 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    const { firstName, lastName, email, phoneNumber, homeowner, windowCount, windowAge, planningProcess, zipCode, subid1, subid2, subid3, trustedformCertUrl } = body
+    const { firstName, lastName, email, phoneNumber, homeowner, projectNature, workDone, address, city, state, zipCode, subid1, subid2, trustedformCertUrl } = body
 
     // Validate required fields
-    if (!firstName || !lastName || !email || !phoneNumber || !homeowner || !windowCount || !windowAge || !planningProcess) {
+    if (!firstName || !lastName || !email || !phoneNumber || !homeowner || !projectNature || !workDone || !address || !city || !state) {
       const missingFields = [];
       if (!firstName) missingFields.push('firstName');
       if (!lastName) missingFields.push('lastName');
       if (!email) missingFields.push('email');
       if (!phoneNumber) missingFields.push('phoneNumber');
       if (!homeowner) missingFields.push('homeowner');
-      if (!windowCount) missingFields.push('windowCount');
-      if (!windowAge) missingFields.push('windowAge');
-      if (!planningProcess) missingFields.push('planningProcess');
+      if (!projectNature) missingFields.push('projectNature');
+      if (!workDone) missingFields.push('workDone');
+      if (!address) missingFields.push('address');
+      if (!city) missingFields.push('city');
+      if (!state) missingFields.push('state');
       
       return NextResponse.json(
         { error: 'All required fields are missing', missingFields },
@@ -27,6 +29,13 @@ export async function POST(request: NextRequest) {
     // Get client IP address
     const forwarded = request.headers.get('x-forwarded-for')
     const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
+
+    // Format phone number (remove formatting, keep only digits)
+    const phoneDigits = phoneNumber.replace(/\D/g, '')
+
+    // Calculate project amount based on project nature (default to 0 if not calculable)
+    // This is a placeholder - adjust calculation logic as needed
+    const projectAmount = 0
 
     // Validate required environment variables
     if (!process.env.LEADPROSPER_CAMPAIGN_ID || !process.env.LEADPROSPER_SUPPLIER_ID || !process.env.LEADPROSPER_API_KEY || !process.env.LEADPROSPER_API_URL) {
@@ -50,22 +59,26 @@ export async function POST(request: NextRequest) {
       lp_campaign_id: process.env.LEADPROSPER_CAMPAIGN_ID,
       lp_supplier_id: process.env.LEADPROSPER_SUPPLIER_ID,
       lp_key: process.env.LEADPROSPER_API_KEY,
+      lp_action: '',
       lp_subid1: subid1 || '',
       lp_subid2: subid2 || '',
-      lp_subid3: subid3 || '',
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       email: email.trim(),
-      phone_number: phoneNumber?.trim() || '',
-      zip_code: zipCode?.trim() || '',
-      home_owner: homeowner.trim(),
-      window_count: windowCount.trim(),
-      window_age: windowAge.trim(),
-      planning_process: planningProcess.trim(),
+      phone: phoneDigits,
+      address: address?.trim() || '',
+      city: city?.trim() || '',
+      state: state?.trim() || '',
+      zip_code: zipCode ? parseInt(zipCode.trim(), 10) || 0 : 0,
       ip_address: ip,
       user_agent: request.headers.get('user-agent') || '',
       landing_page_url: request.headers.get('referer') || '',
       trustedform_cert_url: trustedformCertUrl || '',
+      homeowner: homeowner.trim(),
+      project: projectNature.trim(),
+      projectamount: projectAmount,
+      timing: workDone.trim(),
+      tcpalanguage: 'By submitting this form, I agree to the Platinum Window Experts Terms of Use and Privacy Policy. I authorize Platinum Window Experts and its partners to send me marketing text messages or phone calls at the number provided, including those made with an autodialer. Standard message and data rates may apply. Message frequency varies. Opt-out anytime by replying STOP or using the unsubscribe link.',
     };
 
     // Log form submission for monitoring (production logging)

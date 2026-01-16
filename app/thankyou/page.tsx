@@ -123,9 +123,9 @@ function ThankYouContent() {
           
           // Send welcome email after a short delay to ensure page is loaded
           setTimeout(() => {
-            if (!emailSent) {
-              sendWelcomeEmailFromThankYou();
-            }
+          if (!emailSent) {
+            sendWelcomeEmailFromThankYou();
+          }
           }, 500);
           return;
         }
@@ -174,9 +174,9 @@ function ThankYouContent() {
         
         // Send welcome email after a short delay to ensure page is loaded
         setTimeout(() => {
-          if (!emailSent) {
-            sendWelcomeEmailFromThankYou();
-          }
+        if (!emailSent) {
+          sendWelcomeEmailFromThankYou();
+        }
         }, 500);
       } catch {
         router.replace('/');

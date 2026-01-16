@@ -69,8 +69,8 @@ export default function Navbar() {
       </div>
 
       {/* DESKTOP NAVBAR */}
-      <div className="hidden md:block">
-        <div className="bg-white px-10 xl:px-45 xl:py-7 py-6 mx-auto">
+      <div className="hidden container mx-auto md:block">
+        <div className="bg-white xl:py-7 py-6">
           <div className="mx-auto flex justify-between items-center">
             <Link href="/"><Image
               src="/logo.svg"

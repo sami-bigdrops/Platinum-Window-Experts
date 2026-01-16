@@ -75,7 +75,7 @@ export default function Hero() {
           "linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%), url('/hero-bg.webp') lightgray 50% / cover no-repeat",
       }}
     >
-      <div className="container  mx-auto">
+      <div className="container mx-auto">
         <div className="hero-content w-full">
           <div className="hero-container relative z-10 flex flex-col items-center justify-center md:items-start md:justify-start gap-5 text-center">
             <div className="title">

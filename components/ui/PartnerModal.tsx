@@ -9,6 +9,7 @@ interface PartnerModalProps {
 
 const partners = [
   "Renewal by Andersen",
+  "Home Media LLC"
 ]
 
 export default function PartnerModal({ isOpen, onClose }: PartnerModalProps) {
