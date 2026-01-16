@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Grid2x2, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import RadioButtonGroup, {
@@ -58,16 +58,57 @@ const FormPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [trustedFormCertUrl, setTrustedFormCertUrl] = useState("");
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
-  const [cityName] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("city") || "";
-    }
-    return "";
-  });
+  const [cityName, setCityName] = useState("");
   const [homeownerCount] = useState(() => {
     // Generate a random number between 3 and 5 for homeowner count
     return Math.floor(Math.random() * 3) + 3;
   });
+
+  // Fetch city name from zip code
+  useEffect(() => {
+    const fetchCityFromZip = async () => {
+      if (typeof window === "undefined") return;
+
+      // Get zip code from localStorage
+      const storedZipCode = localStorage.getItem("zipCode");
+      
+      if (!storedZipCode || storedZipCode.length !== 5) {
+        // If no zip code, try to get city from localStorage as fallback
+        const savedCity = localStorage.getItem("city");
+        if (savedCity) {
+          setCityName(savedCity);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/get-city-from-zip?zipCode=${storedZipCode}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.city) {
+            setCityName(data.city);
+            // Also update localStorage for consistency
+            localStorage.setItem("city", data.city);
+          }
+        } else {
+          // Fallback to localStorage city if API fails
+          const savedCity = localStorage.getItem("city");
+          if (savedCity) {
+            setCityName(savedCity);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching city from zip code:", error);
+        // Fallback to localStorage city if API fails
+        const savedCity = localStorage.getItem("city");
+        if (savedCity) {
+          setCityName(savedCity);
+        }
+      }
+    };
+
+    fetchCityFromZip();
+  }, []);
 
   // Initialize UTM parameters from URL or cookies
   const [subid1, setSubid1] = useState(() => {
@@ -99,9 +140,14 @@ const FormPage = () => {
       address: "",
       city: "",
       state: "",
+      zipCode: "",
     };
     if (typeof window !== "undefined") {
       try {
+        // Get zip code from localStorage (set from hero page)
+        const storedZipCode = localStorage.getItem("zipCode");
+        const zipCodeValue = storedZipCode && storedZipCode.length === 5 ? storedZipCode : "";
+
         const savedFormData = localStorage.getItem("windows_form_data");
         if (savedFormData) {
           const parsedData = JSON.parse(savedFormData);
@@ -116,13 +162,29 @@ const FormPage = () => {
             phoneNumber: parsedData.phoneNumber || "",
             workDone: parsedData.workDone || "",
             // Always start with empty address, city, state (not stored in localStorage)
+            // But use zipCode from localStorage if available
             address: "",
             city: "",
             state: "",
+            zipCode: zipCodeValue,
           };
         }
+        // If no saved form data, still use zipCode from localStorage
+        return {
+          ...defaultData,
+          zipCode: zipCodeValue,
+        };
       } catch (error) {
         console.error("Error loading form data from localStorage:", error);
+        // Still try to get zipCode from localStorage even if there's an error
+        if (typeof window !== "undefined") {
+          const storedZipCode = localStorage.getItem("zipCode");
+          const zipCodeValue = storedZipCode && storedZipCode.length === 5 ? storedZipCode : "";
+          return {
+            ...defaultData,
+            zipCode: zipCodeValue,
+          };
+        }
       }
     }
     return defaultData;
@@ -131,7 +193,7 @@ const FormPage = () => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        // Exclude address, city, and state from localStorage
+        // Exclude address, city, state, and zipCode from localStorage
         const dataToSave = {
           projectNature: formData.projectNature,
           homeowner: formData.homeowner,
@@ -228,6 +290,15 @@ const FormPage = () => {
     value: string,
     autoAdvance = false
   ) => {
+    // For state field, restrict to 2 characters and convert to uppercase
+    if (field === "state") {
+      value = value.toUpperCase().slice(0, 2);
+    }
+    // For zipCode field, restrict to 5 digits only
+    if (field === "zipCode") {
+      value = value.replace(/\D/g, "").slice(0, 5);
+    }
+    
     const updatedData = { ...formData, [field]: value };
     setFormData(
       updatedData as {
@@ -242,6 +313,7 @@ const FormPage = () => {
         address: string;
         city: string;
         state: string;
+        zipCode: string;
       }
     );
 
@@ -266,12 +338,6 @@ const FormPage = () => {
         setIsSubmitting(true);
 
         try {
-          // Get zipCode from localStorage (set from hero page)
-          const zipCode =
-            typeof window !== "undefined"
-              ? localStorage.getItem("zipCode") || ""
-              : "";
-
           // Submit form data to API
           const response = await fetch("/api/submit-form", {
             method: "POST",
@@ -289,7 +355,7 @@ const FormPage = () => {
               address: formData.address,
               city: formData.city,
               state: formData.state,
-              zipCode: zipCode,
+              zipCode: formData.zipCode,
               subid1: subid1,
               subid2: subid2,
               subid3: subid3,
@@ -386,7 +452,9 @@ const FormPage = () => {
         return (
           formData.address.trim() !== "" &&
           formData.city.trim() !== "" &&
-          formData.state.trim() !== ""
+          formData.state.trim() !== "" &&
+          formData.zipCode.trim() !== "" &&
+          formData.zipCode.length === 5
         );
       case 7:
         const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
@@ -413,7 +481,6 @@ const FormPage = () => {
     { id: "1_2", label: "1 - 2 Windows" },
     { id: "3_5", label: "3 - 5 Windows" },
     { id: "6_plus", label: "6+ Windows" },
-    { id: "not_sure", label: "I am not sure" },
   ];
 
   const workDoneOptions: RadioOption[] = [
@@ -437,13 +504,14 @@ const FormPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 px-4 pt-12 pb-8 md:pb-12">
+    <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 px-4 pt-8 pb-8">
       <div className="w-full max-w-3xl mx-auto">
         {cityName && homeownerCount > 0 && (
           <div className="mb-4 text-center">
-            <p className="text-sm md:text-base text-gray-600 font-medium max-w-lg mx-auto">
-              <span className="text-sky-600 font-semibold">
-                {homeownerCount} people from {cityName}
+            <p className="text-base text-gray-600 font-medium mx-auto">
+              {homeownerCount} people from{" "}
+              <span className="text-sky-600 font-bold">
+                {cityName}
               </span>{" "}
               got their FREE quote in the last 5 minutes from{" "}
               <span className="text-sky-600 font-semibold">
@@ -455,10 +523,9 @@ const FormPage = () => {
         <ProgressBar
           currentStep={currentStep}
           totalSteps={7}
-          icon={<Grid2x2 size={20} className="text-sky-600" />}
         />
 
-        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-6 md:p-10">
+        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-6">
           <TrustedForm onCertUrlReady={handleTrustedFormReady} />
 
           {currentStep === 1 && (
@@ -584,14 +651,15 @@ const FormPage = () => {
                   label="Address"
                   value={formData.address}
                   onChange={(value) => handleInputChange("address", value)}
-                  onAddressSelect={(address, city, state) => {
-                    // Update all three fields in a single state update to avoid React batching issues
+                  onAddressSelect={(address, city, state, zipCode) => {
+                    // Update all fields in a single state update to avoid React batching issues
                     setFormData((prevData) => {
                       const updated = {
                         ...prevData,
                         address: address,
                         city: city,
                         state: state,
+                        zipCode: zipCode || prevData.zipCode, // Use fetched zipCode or keep existing
                       };
                       return updated as {
                         projectNature: string;
@@ -605,6 +673,7 @@ const FormPage = () => {
                         address: string;
                         city: string;
                         state: string;
+                        zipCode: string;
                       };
                     });
                   }}
@@ -627,8 +696,18 @@ const FormPage = () => {
                     onChange={(value) => handleInputChange("state", value)}
                     placeholder="State"
                     required
+                    maxLength={2}
                   />
                 </div>
+                <TextInput
+                  id="zipCode"
+                  label="Zip Code"
+                  value={formData.zipCode}
+                  onChange={(value) => handleInputChange("zipCode", value)}
+                  placeholder="12345"
+                  required
+                  maxLength={5}
+                />
               </div>
             </>
           )}
@@ -649,6 +728,27 @@ const FormPage = () => {
                 />
               </div>
             </>
+          )}
+
+          {/* Security Indicator - Show from step 5 onwards */}
+          {currentStep >= 5 && (
+            <div className="mb-6 flex items-center gap-3">
+              <div className="relative">
+                <Image
+                  src="/lady.png"
+                  alt="Security"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div className="absolute -bottom-1 -right-1 bg-sky-500 rounded-full p-1 flex items-center justify-center">
+                  <Check size={12} className="text-white" />
+                </div>
+              </div>
+              <p className="text-sm md:text-base text-gray-600 font-medium">
+                Your Information is safe & secure
+              </p>
+            </div>
           )}
 
           <div className="flex gap-4">

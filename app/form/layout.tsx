@@ -7,10 +7,10 @@ export const metadata: Metadata = {
   title: 'Form | Platinum Window Experts',
   icons: {
     icon: [
-      { url: '/favicon.webp', type: 'image/webp', sizes: 'any' },
+      { url: '/favicon.png', type: 'image/png', sizes: 'any' },
     ],
-    shortcut: '/favicon.webp',
-    apple: '/favicon.webp',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
   },
 }
 

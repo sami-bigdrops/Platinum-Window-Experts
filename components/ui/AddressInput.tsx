@@ -7,7 +7,7 @@ interface AddressInputProps {
   label?: string
   value: string
   onChange: (value: string) => void
-  onAddressSelect?: (address: string, city: string, state: string) => void
+  onAddressSelect?: (address: string, city: string, state: string, zipCode: string) => void
   onBlur?: () => void
   placeholder?: string
   required?: boolean
@@ -207,6 +207,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         let route = ''
         let city = ''
         let state = ''
+        let zipCode = ''
         let finalAddress = ''
 
         // ALWAYS parse from formatted_address FIRST as primary source for reliable parsing
@@ -249,8 +250,8 @@ const AddressInput: React.FC<AddressInputProps> = ({
           }
         }
 
-        // Fallback: If formatted_address didn't provide address, try address_components
-        if (!finalAddress && place.address_components && place.address_components.length > 0) {
+        // Extract zip code and other components from address_components
+        if (place.address_components && place.address_components.length > 0) {
           for (const component of place.address_components) {
             const types = component.types
 
@@ -263,17 +264,24 @@ const AddressInput: React.FC<AddressInputProps> = ({
             if (types.includes('route')) {
               route = component.long_name.trim()
             }
+
+            // Get zip code
+            if (types.includes('postal_code')) {
+              zipCode = component.long_name.trim()
+            }
           }
 
-          // Build street address: combine street number and route
-          const addressParts: string[] = []
-          if (streetNumber) {
-            addressParts.push(streetNumber)
+          // Build street address: combine street number and route (only if we don't have finalAddress yet)
+          if (!finalAddress) {
+            const addressParts: string[] = []
+            if (streetNumber) {
+              addressParts.push(streetNumber)
+            }
+            if (route) {
+              addressParts.push(route)
+            }
+            finalAddress = addressParts.join(' ').trim()
           }
-          if (route) {
-            addressParts.push(route)
-          }
-          finalAddress = addressParts.join(' ').trim()
         }
 
         // Final fallback: If still no address, use formatted_address
@@ -288,7 +296,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         
         // Call callback with parsed values using ref to get latest callback
         if (onAddressSelectRef.current) {
-          onAddressSelectRef.current(finalAddress, city, state)
+          onAddressSelectRef.current(finalAddress, city, state, zipCode)
         }
       }
 

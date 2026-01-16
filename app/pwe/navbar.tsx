@@ -9,6 +9,7 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const isThankYouPage = pathname === '/thankyou';
+  const isFormPage = pathname === '/form';
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault();
@@ -33,37 +34,39 @@ export default function Navbar() {
     <>
       {/* MOBILE */}
       <div className="block md:hidden">
-        <div className="bg-white px-4 py-6">
-          <div className="flex justify-between items-center">
+        <div className="bg-white px-4 py-3">
+          <div className={`flex items-center ${isFormPage ? 'justify-center' : 'justify-between'}`}>
             <div className="logo">
               <Link href="/"><Image
                 src="/logo.svg"
                 alt="Platinum Window Expert"
-                width={120}
-                height={30}
-                className="h-8 w-auto"
+                width={240}
+                height={60}
+                className="h-12 w-auto object-contain"
               /></Link>
             </div>
-            <div className="nav-group flex flex-col justify-center items-center gap-1">
-              <p className="text-xs font-roboto font-medium text-center mb-0 text-dark">
-                Call Us for a FREE Quote
-              </p>
-              <div className="phone-grp flex flex-row items-center gap-2">
-                <Image
-                  src="/mobile.svg"
-                  alt="Phone"
-                  width={16}
-                  height={16}
-                  className="h-4 w-auto"
-                />
-                <Link
-                  href="tel:18556591507"
-                  className="font-semibold text-sm font-roboto text-blue text-primary"
-                >
-                  1-855-659-1507
-                </Link>
+            {!isFormPage && (
+              <div className="nav-group flex flex-col justify-center items-center gap-1">
+                <p className="text-xs font-roboto font-medium text-center mb-0 text-dark">
+                  Call Us for a FREE Quote
+                </p>
+                <div className="phone-grp flex flex-row items-center gap-2">
+                  <Image
+                    src="/mobile.svg"
+                    alt="Phone"
+                    width={16}
+                    height={16}
+                    className="h-4 w-auto"
+                  />
+                  <Link
+                    href="tel:18556591507"
+                    className="font-semibold text-sm font-roboto text-blue text-primary"
+                  >
+                    1-855-659-1507
+                  </Link>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -71,13 +74,13 @@ export default function Navbar() {
       {/* DESKTOP NAVBAR */}
       <div className="hidden container mx-auto md:block">
         <div className="bg-white xl:py-7 py-6">
-          <div className="mx-auto flex justify-between items-center">
+          <div className="mx-auto flex items-center justify-between">
             <Link href="/"><Image
               src="/logo.svg"
               alt="Platinum Window Expert"
               width={120}
               height={30}
-              className="h-9 lg:h-10 xl:h-14 w-auto"
+              className="h-12 lg:h-10 xl:h-14 w-auto object-contain"
             /></Link>
 
             {!isThankYouPage && (

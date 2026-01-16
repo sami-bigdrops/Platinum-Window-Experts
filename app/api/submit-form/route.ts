@@ -4,10 +4,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    const { firstName, lastName, email, phoneNumber, homeowner, projectNature, workDone, address, city, state, zipCode, subid1, subid2, trustedformCertUrl } = body
+    const { firstName, lastName, email, phoneNumber, homeowner, projectNature, windowCount, workDone, address, city, state, zipCode, subid1, subid2, trustedformCertUrl } = body
 
     // Validate required fields
-    if (!firstName || !lastName || !email || !phoneNumber || !homeowner || !projectNature || !workDone || !address || !city || !state) {
+    if (!firstName || !lastName || !email || !phoneNumber || !homeowner || !projectNature || !windowCount || !workDone || !address || !city || !state) {
       const missingFields = [];
       if (!firstName) missingFields.push('firstName');
       if (!lastName) missingFields.push('lastName');
@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
       if (!phoneNumber) missingFields.push('phoneNumber');
       if (!homeowner) missingFields.push('homeowner');
       if (!projectNature) missingFields.push('projectNature');
+      if (!windowCount) missingFields.push('windowCount');
       if (!workDone) missingFields.push('workDone');
       if (!address) missingFields.push('address');
       if (!city) missingFields.push('city');
@@ -32,10 +33,6 @@ export async function POST(request: NextRequest) {
 
     // Format phone number (remove formatting, keep only digits)
     const phoneDigits = phoneNumber.replace(/\D/g, '')
-
-    // Calculate project amount based on project nature (default to 0 if not calculable)
-    // This is a placeholder - adjust calculation logic as needed
-    const projectAmount = 0
 
     // Validate required environment variables
     if (!process.env.LEADPROSPER_CAMPAIGN_ID || !process.env.LEADPROSPER_SUPPLIER_ID || !process.env.LEADPROSPER_API_KEY || !process.env.LEADPROSPER_API_URL) {
@@ -76,7 +73,7 @@ export async function POST(request: NextRequest) {
       trustedform_cert_url: trustedformCertUrl || '',
       homeowner: homeowner.trim(),
       project: projectNature.trim(),
-      projectamount: projectAmount,
+      projectamount: windowCount.trim(),
       timing: workDone.trim(),
       tcpalanguage: 'By submitting this form, I agree to the Platinum Window Experts Terms of Use and Privacy Policy. I authorize Platinum Window Experts and its partners to send me marketing text messages or phone calls at the number provided, including those made with an autodialer. Standard message and data rates may apply. Message frequency varies. Opt-out anytime by replying STOP or using the unsubscribe link.',
     };

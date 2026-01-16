@@ -13,6 +13,7 @@ interface TextInputProps {
   required?: boolean
   className?: string
   error?: string
+  maxLength?: number
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -25,7 +26,8 @@ const TextInput: React.FC<TextInputProps> = ({
   placeholder,
   required = false,
   className = '',
-  error
+  error,
+  maxLength
 }) => {
   return (
     <div className={className}>
@@ -42,6 +44,7 @@ const TextInput: React.FC<TextInputProps> = ({
         onBlur={onBlur}
         placeholder={placeholder}
         required={required}
+        maxLength={maxLength}
         className={`w-full px-4 py-4 text-base border-2 rounded-xl
           focus:outline-none focus:ring-2 transition-all duration-200 font-medium
           ${
