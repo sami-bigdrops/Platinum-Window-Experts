@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Grid2x2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import RadioButtonGroup, {
   type RadioOption,
 } from "@/components/ui/RadioButtonGroup";
@@ -726,6 +727,20 @@ const FormPage = () => {
               </p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Warranty Image */}
+      <div className="w-full max-w-3xl mx-auto mt-8">
+        <div className="flex justify-center">
+          <Image
+            src="/warranty.webp"
+            alt="Warranty Information"
+            width={800}
+            height={400}
+            className="w-60 h-auto rounded-lg"
+            priority={false}
+          />
         </div>
       </div>
 
