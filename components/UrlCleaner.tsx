@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 
-const EXCLUDED_PATHS = ['/thankyou', '/privacy-policy', '/terms-of-use']
+const EXCLUDED_PATHS = ['/thankyou', '/privacy-policy', '/terms-of-use', '/form']
 
 export default function UrlCleaner() {
   const pathname = usePathname()

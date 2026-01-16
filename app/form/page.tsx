@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Loader2, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -110,6 +110,7 @@ const FormPage = () => {
     fetchCityFromZip();
   }, []);
 
+  // Initialize UTM parameters from cookies
   const [subid1, setSubid1] = useState("");
   const [subid2, setSubid2] = useState("");
   const [subid3, setSubid3] = useState("");
@@ -210,11 +211,47 @@ const FormPage = () => {
 
 
   // Handle TrustedForm certificate data
-  const handleTrustedFormReady = (certUrl: string) => {
-    setTrustedFormCertUrl(certUrl);
-  };
+  const handleTrustedFormReady = useCallback((certUrl: string) => {
+    if (certUrl) {
+      setTrustedFormCertUrl(certUrl);
+    }
+  }, []);
+
+  // Also check for TrustedForm certificate URL periodically in case callback doesn't fire
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    
+    const checkTrustedFormCert = () => {
+      const certInput = document.getElementById('xxTrustedFormCertUrl_0') as HTMLInputElement;
+      if (certInput && certInput.value && !trustedFormCertUrl) {
+        setTrustedFormCertUrl(certInput.value);
+      }
+    };
+
+    // Check immediately
+    checkTrustedFormCert();
+
+    // Check periodically until we have the cert URL or timeout
+    const interval = setInterval(() => {
+      checkTrustedFormCert();
+      if (trustedFormCertUrl) {
+        clearInterval(interval);
+      }
+    }, 500);
+
+    // Clear interval after 10 seconds
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [trustedFormCertUrl]);
 
   // UTM Parameter Detection with Cookie Fallback
+  // This must run immediately on mount, before any URL cleaning happens
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -230,33 +267,50 @@ const FormPage = () => {
     const setCookie = (name: string, value: string, days: number = 30) => {
       const expires = new Date();
       expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+      console.log(`Cookie set: ${name} = ${value}`); // Debug log
     };
 
+    // Read URL parameters immediately (before any URL cleaning)
     const urlParams = new URLSearchParams(window.location.search);
-    let utmSource = urlParams.get("utm_source") || "";
-    let utmId = urlParams.get("utm_id") || "";
-    let utmS1 = urlParams.get("utm_s1") || "";
+    const utmSource = urlParams.get("utm_source") || "";
+    const utmId = urlParams.get("utm_id") || "";
+    const utmS1 = urlParams.get("utm_s1") || "";
 
-    // If URL parameters exist, use them and save to cookies
+    console.log("UTM Parameters detected:", { utmSource, utmId, utmS1 }); // Debug log
+
+    // If URL parameters exist, store them in cookies first
     if (utmSource || utmId || utmS1) {
-      if (utmSource) setCookie('subid1', utmSource);
-      if (utmId) setCookie('subid2', utmId);
-      if (utmS1) setCookie('subid3', utmS1);
+      if (utmSource) {
+        setCookie('subid1', utmSource);
+        setSubid1(utmSource);
+      }
+      if (utmId) {
+        setCookie('subid2', utmId);
+        setSubid2(utmId);
+      }
+      if (utmS1) {
+        setCookie('subid3', utmS1);
+        setSubid3(utmS1);
+      }
       
-      // Clean the URL by removing UTM parameters
-      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
+      // Clean the URL by removing UTM parameters (after storing in cookies)
+      setTimeout(() => {
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }, 100);
     } else {
-      // If no URL parameters, try to read from cookies
-      utmSource = getCookie('subid1') || "";
-      utmId = getCookie('subid2') || "";
-      utmS1 = getCookie('subid3') || "";
+      // If no URL parameters, read from cookies and update state
+      const cookieSubid1 = getCookie('subid1');
+      const cookieSubid2 = getCookie('subid2');
+      const cookieSubid3 = getCookie('subid3');
+      
+      console.log("Reading from cookies:", { cookieSubid1, cookieSubid2, cookieSubid3 }); // Debug log
+      
+      if (cookieSubid1) setSubid1(cookieSubid1);
+      if (cookieSubid2) setSubid2(cookieSubid2);
+      if (cookieSubid3) setSubid3(cookieSubid3);
     }
-
-    setSubid1(utmSource);
-    setSubid2(utmId);
-    setSubid3(utmS1);
   }, []);
 
   const handleInputChange = (
