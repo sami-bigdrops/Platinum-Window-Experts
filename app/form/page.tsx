@@ -110,22 +110,9 @@ const FormPage = () => {
     fetchCityFromZip();
   }, []);
 
-  // Initialize UTM parameters from URL or cookies
-  const [subid1, setSubid1] = useState(() => {
-    if (typeof window === "undefined") return "";
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("utm_source") || "";
-  });
-  const [subid2, setSubid2] = useState(() => {
-    if (typeof window === "undefined") return "";
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("utm_id") || "";
-  });
-  const [subid3, setSubid3] = useState(() => {
-    if (typeof window === "undefined") return "";
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("utm_s1") || "";
-  });
+  const [subid1, setSubid1] = useState("");
+  const [subid2, setSubid2] = useState("");
+  const [subid3, setSubid3] = useState("");
 
   const [formData, setFormData] = useState(() => {
     const defaultData = {
@@ -235,54 +222,41 @@ const FormPage = () => {
     const getCookie = (name: string) => {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(";").shift() || "";
-      return "";
+      if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
+      return '';
     };
 
     // Helper function to set cookie
     const setCookie = (name: string, value: string, days: number = 30) => {
       const expires = new Date();
-      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+      expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
       document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
     };
 
     const urlParams = new URLSearchParams(window.location.search);
-    const utmSource = urlParams.get("utm_source") || "";
-    const utmId = urlParams.get("utm_id") || "";
-    const utmS1 = urlParams.get("utm_s1") || "";
+    let utmSource = urlParams.get("utm_source") || "";
+    let utmId = urlParams.get("utm_id") || "";
+    let utmS1 = urlParams.get("utm_s1") || "";
 
     // If URL parameters exist, use them and save to cookies
     if (utmSource || utmId || utmS1) {
-      if (utmSource) {
-        setCookie("subid1", utmSource);
-        setTimeout(() => setSubid1(utmSource), 0);
-      }
-      if (utmId) {
-        setCookie("subid2", utmId);
-        setTimeout(() => setSubid2(utmId), 0);
-      }
-      if (utmS1) {
-        setCookie("subid3", utmS1);
-        setTimeout(() => setSubid3(utmS1), 0);
-      }
-
+      if (utmSource) setCookie('subid1', utmSource);
+      if (utmId) setCookie('subid2', utmId);
+      if (utmS1) setCookie('subid3', utmS1);
+      
       // Clean the URL by removing UTM parameters
-      const cleanUrl =
-        window.location.protocol +
-        "//" +
-        window.location.host +
-        window.location.pathname;
+      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     } else {
       // If no URL parameters, try to read from cookies
-      const cookieSubid1 = getCookie("subid1") || "";
-      const cookieSubid2 = getCookie("subid2") || "";
-      const cookieSubid3 = getCookie("subid3") || "";
-
-      if (cookieSubid1) setTimeout(() => setSubid1(cookieSubid1), 0);
-      if (cookieSubid2) setTimeout(() => setSubid2(cookieSubid2), 0);
-      if (cookieSubid3) setTimeout(() => setSubid3(cookieSubid3), 0);
+      utmSource = getCookie('subid1') || "";
+      utmId = getCookie('subid2') || "";
+      utmS1 = getCookie('subid3') || "";
     }
+
+    setSubid1(utmSource);
+    setSubid2(utmId);
+    setSubid3(utmS1);
   }, []);
 
   const handleInputChange = (
@@ -487,9 +461,9 @@ const FormPage = () => {
   ];
 
   const windowCountOptions: RadioOption[] = [
-    { id: "1_2", label: "1 - 2 Windows" },
-    { id: "3_5", label: "3 - 5 Windows" },
-    { id: "6_plus", label: "6+ Windows" },
+    { id: "Windows - New Windows - 1-2", label: "1 - 2 Windows" },
+    { id: "Windows - New Windows - 3-5", label: "3 - 5 Windows" },
+    { id: "Windows - New Windows - 6 +", label: "6+ Windows" },
   ];
 
   const workDoneOptions: RadioOption[] = [
