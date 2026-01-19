@@ -221,32 +221,60 @@ const FormPage = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
     
+    let intervalId: NodeJS.Timeout | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+    
     const checkTrustedFormCert = () => {
+      // Try multiple possible field names/IDs
       const certInput = document.getElementById('xxTrustedFormCertUrl_0') as HTMLInputElement;
-      if (certInput && certInput.value && !trustedFormCertUrl) {
-        setTrustedFormCertUrl(certInput.value);
+      const certInputByName = document.querySelector('input[name="xxTrustedFormCertUrl"]') as HTMLInputElement;
+      const certInputToCheck = certInput || certInputByName;
+      
+      if (certInputToCheck) {
+        const certValue = certInputToCheck.value?.trim();
+        if (certValue && certValue !== trustedFormCertUrl) {
+          setTrustedFormCertUrl(certValue);
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
+          return true;
+        }
       }
+      return false;
     };
 
-    // Check immediately
-    checkTrustedFormCert();
-
-    // Check periodically until we have the cert URL or timeout
-    const interval = setInterval(() => {
+    // Wait a bit for TrustedForm script to initialize
+    const startDelay = setTimeout(() => {
+      // Check immediately
       checkTrustedFormCert();
-      if (trustedFormCertUrl) {
-        clearInterval(interval);
-      }
-    }, 500);
 
-    // Clear interval after 10 seconds
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, 10000);
+      // Check periodically until we have the cert URL or timeout
+      intervalId = setInterval(() => {
+        checkTrustedFormCert();
+      }, 1000); // Check every 1 second
+
+      // Clear interval after 20 seconds (extended timeout)
+      timeoutId = setTimeout(() => {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        // Final check
+        const found = checkTrustedFormCert();
+        if (!found && !trustedFormCertUrl) {
+          const scriptLoaded = document.querySelector('script[src*="trustedform.js"]');
+          if (!scriptLoaded) {
+            console.error("TrustedForm: Script not found in DOM");
+          }
+        }
+      }, 20000);
+    }, 2000); // Wait 2 seconds for script to load
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
+      clearTimeout(startDelay);
+      if (intervalId) clearInterval(intervalId);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [trustedFormCertUrl]);
 
@@ -268,7 +296,6 @@ const FormPage = () => {
       const expires = new Date();
       expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
       document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-      console.log(`Cookie set: ${name} = ${value}`); // Debug log
     };
 
     // Read URL parameters immediately (before any URL cleaning)
@@ -276,8 +303,6 @@ const FormPage = () => {
     const utmSource = urlParams.get("utm_source") || "";
     const utmId = urlParams.get("utm_id") || "";
     const utmS1 = urlParams.get("utm_s1") || "";
-
-    console.log("UTM Parameters detected:", { utmSource, utmId, utmS1 }); // Debug log
 
     // If URL parameters exist, store them in cookies first
     if (utmSource || utmId || utmS1) {
@@ -294,18 +319,16 @@ const FormPage = () => {
         setSubid3(utmS1);
       }
       
-      // Clean the URL by removing UTM parameters (after storing in cookies)
+      // Clean the URL by removing all query parameters and hash (after storing UTM in cookies)
       setTimeout(() => {
         const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
-      }, 100);
+      }, 200);
     } else {
       // If no URL parameters, read from cookies and update state
       const cookieSubid1 = getCookie('subid1');
       const cookieSubid2 = getCookie('subid2');
       const cookieSubid3 = getCookie('subid3');
-      
-      console.log("Reading from cookies:", { cookieSubid1, cookieSubid2, cookieSubid3 }); // Debug log
       
       if (cookieSubid1) setSubid1(cookieSubid1);
       if (cookieSubid2) setSubid2(cookieSubid2);
@@ -366,30 +389,41 @@ const FormPage = () => {
         setIsSubmitting(true);
 
         try {
+          // Get TrustedForm certificate URL one more time before submission
+          const certInput = document.getElementById('xxTrustedFormCertUrl_0') as HTMLInputElement;
+          const finalCertUrl = certInput?.value?.trim() || trustedFormCertUrl || "";
+          
+          if (finalCertUrl && !trustedFormCertUrl) {
+            setTrustedFormCertUrl(finalCertUrl);
+          }
+          
+          // Prepare form data
+          const submissionData = {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phoneNumber: formData.phoneNumber,
+            homeowner: formData.homeowner,
+            projectNature: formData.projectNature,
+            windowCount: formData.windowCount,
+            workDone: formData.workDone,
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            subid1: subid1,
+            subid2: subid2,
+            subid3: subid3,
+            trustedformCertUrl: finalCertUrl,
+          };
+
           // Submit form data to API
           const response = await fetch("/api/submit-form", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              email: formData.email,
-              phoneNumber: formData.phoneNumber,
-              homeowner: formData.homeowner,
-              projectNature: formData.projectNature,
-              windowCount: formData.windowCount,
-              workDone: formData.workDone,
-              address: formData.address,
-              city: formData.city,
-              state: formData.state,
-              zipCode: formData.zipCode,
-              subid1: subid1,
-              subid2: subid2,
-              subid3: subid3,
-              trustedformCertUrl: trustedFormCertUrl,
-            }),
+            body: JSON.stringify(submissionData),
           });
 
           let result;
@@ -404,6 +438,7 @@ const FormPage = () => {
             if (typeof result.success === "undefined") {
               result.success = response.ok;
             }
+            
             // Log error details for debugging
             if (!response.ok || !result.success) {
               console.error("API Error Response:", {
@@ -561,7 +596,7 @@ const FormPage = () => {
           currentStep={currentStep}
           totalSteps={7}
         />
-
+        <form>
         <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-6">
           <TrustedForm onCertUrlReady={handleTrustedFormReady} />
 
@@ -865,6 +900,7 @@ const FormPage = () => {
             </div>
           )}
         </div>
+        </form>
       </div>
 
       {/* Warranty Image */}

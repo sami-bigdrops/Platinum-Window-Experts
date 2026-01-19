@@ -35,7 +35,7 @@ export default function Navbar() {
       {/* MOBILE */}
       <div className="block md:hidden">
         <div className="bg-white px-4 py-3">
-          <div className={`flex items-center ${isFormPage ? 'justify-center' : 'justify-between'}`}>
+          <div className="flex items-center justify-center">
             <div className="logo">
               <Link href="/"><Image
                 src="/logo.svg"
@@ -45,28 +45,6 @@ export default function Navbar() {
                 className="h-12 w-auto object-contain"
               /></Link>
             </div>
-            {!isFormPage && (
-              <div className="nav-group flex flex-col justify-center items-center gap-1">
-                <p className="text-xs font-roboto font-medium text-center mb-0 text-dark">
-                  Call Us for a FREE Quote
-                </p>
-                <div className="phone-grp flex flex-row items-center gap-2">
-                  <Image
-                    src="/mobile.svg"
-                    alt="Phone"
-                    width={16}
-                    height={16}
-                    className="h-4 w-auto"
-                  />
-                  <Link
-                    href="tel:18556591507"
-                    className="font-semibold text-sm font-roboto text-blue text-primary"
-                  >
-                    1-855-659-1507
-                  </Link>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
