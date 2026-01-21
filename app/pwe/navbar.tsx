@@ -52,7 +52,7 @@ export default function Navbar() {
       {/* DESKTOP NAVBAR */}
       <div className="hidden container mx-auto md:block">
         <div className="bg-white xl:py-7 py-6">
-          <div className="mx-auto flex items-center justify-between">
+          <div className={`mx-auto flex items-center ${isThankYouPage || isFormPage ? 'justify-center' : 'justify-between'}`}>
             <Link href="/"><Image
               src="/logo.svg"
               alt="Platinum Window Expert"
@@ -61,51 +61,76 @@ export default function Navbar() {
               className="h-12 lg:h-10 xl:h-14 w-auto object-contain"
             /></Link>
 
-            {!isThankYouPage && (
-              <nav className="flex items-center justify-center gap-7 xl:gap-17">
-                <Link
-                  href="/"
-                  onClick={(e) => handleSmoothScroll(e, 'benefit')}
-                  className="text-xs lg:text-sm xl:text-[1.05rem] text-dark hover:text-[#275086] font-roboto transition-colors cursor-pointer"
-                >
-                  Benefits
-                </Link>
-                <Link
-                  href="/"
-                  onClick={(e) => handleSmoothScroll(e, 'product')}
-                  className="text-xs lg:text-sm xl:text-[1.05rem] text-dark hover:text-[#275086] font-roboto transition-colors cursor-pointer"
-                >
-                  Products
-                </Link>
-                <Link
-                  href="/"
-                  onClick={(e) => handleSmoothScroll(e, 'review')}
-                  className="text-xs lg:text-sm xl:text-[1.05rem] text-dark hover:text-[#275086] font-roboto transition-colors cursor-pointer"
-                >
-                  Testimonials
-                </Link>
-                <Link
-                  href="/"
-                  onClick={(e) => handleSmoothScroll(e, 'faq')}
-                  className="text-xs lg:text-sm xl:text-[1.05rem] text-dark hover:text-[#275086] font-roboto transition-colors cursor-pointer"
-                >
-                  FAQ
-                </Link>
-              </nav>
-            )}
+            {!isThankYouPage && !isFormPage && (
+              <>
+                <nav className="flex items-center justify-center gap-7 xl:gap-17">
+                  <Link
+                    href="/"
+                    onClick={(e) => handleSmoothScroll(e, 'benefit')}
+                    className="text-xs lg:text-sm xl:text-[1.05rem] text-dark hover:text-[#275086] font-roboto transition-colors cursor-pointer"
+                  >
+                    Benefits
+                  </Link>
+                  <Link
+                    href="/"
+                    onClick={(e) => handleSmoothScroll(e, 'product')}
+                    className="text-xs lg:text-sm xl:text-[1.05rem] text-dark hover:text-[#275086] font-roboto transition-colors cursor-pointer"
+                  >
+                    Products
+                  </Link>
+                  <Link
+                    href="/"
+                    onClick={(e) => handleSmoothScroll(e, 'review')}
+                    className="text-xs lg:text-sm xl:text-[1.05rem] text-dark hover:text-[#275086] font-roboto transition-colors cursor-pointer"
+                  >
+                    Testimonials
+                  </Link>
+                  <Link
+                    href="/"
+                    onClick={(e) => handleSmoothScroll(e, 'faq')}
+                    className="text-xs lg:text-sm xl:text-[1.05rem] text-dark hover:text-[#275086] font-roboto transition-colors cursor-pointer"
+                  >
+                    FAQ
+                  </Link>
+                </nav>
 
-            <button className="flex flex-row items-center gap-2 rounded-sm text-sm lg:text-base xl:text-lg px-4 lg:px-5 py-3 font-medium font-roboto cursor-pointer bg-blue text-white transition-all duration-300 hover:bg-[#275086]">
-              <Image
-                src="/desktop.svg"
-                alt="Phone"
-                width={16}
-                height={16}
-                className="h-4 xl:h-5 w-auto"
-              />
-              <span className="text-sm lg:text-base xl:text-[1.3rem] font-roboto text-white">
-                1-855-659-1507
-              </span>
-            </button>
+                {/* <button className="flex flex-row items-center gap-2 rounded-sm text-sm lg:text-base xl:text-lg px-4 lg:px-5 py-3 font-medium font-roboto cursor-pointer bg-blue text-white transition-all duration-300 hover:bg-[#275086]">
+                  <Image
+                    src="/desktop.svg"
+                    alt="Phone"
+                    width={16}
+                    height={16}
+                    className="h-4 xl:h-5 w-auto"
+                  />
+                  <span className="text-sm lg:text-base xl:text-[1.3rem] font-roboto text-white">
+                    1-855-659-1507
+                  </span>
+                </button> */}
+                
+                <button 
+                  onClick={() => {
+                    // Set access token to allow form access
+                    if (typeof window !== 'undefined') {
+                      const accessToken = crypto.randomUUID();
+                      sessionStorage.setItem('form_access_token', accessToken);
+                    }
+                    router.push('/form');
+                  }}
+                  className="flex flex-row items-center gap-2 rounded-sm text-sm lg:text-base xl:text-lg px-4 lg:px-5 py-3 font-medium font-roboto cursor-pointer bg-blue text-white transition-all duration-300 hover:bg-[#275086]"
+                >
+                  <span className="text-sm lg:text-base xl:text-[1.3rem] font-roboto text-white">
+                    Get my FREE Quote
+                  </span>
+                  <Image
+                    src="/arrow.svg"
+                    alt="Arrow"
+                    width={12}
+                    height={12}
+                    className="h-3 w-3 xl:h-4 xl:w-4"
+                  />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
