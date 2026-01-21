@@ -1,20 +1,14 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import Image from 'next/image'
+import React, { useState } from 'react'
 import { FAQ_CONTENT } from '@/lib/constant'
 
 export default function Faq(){
     const [openFaq, setOpenFaq] = useState<number | null>(1) 
-    const [isClient, setIsClient] = useState(false)
 
     const toggleFaq = (id: number) => {
         setOpenFaq(openFaq === id ? null : id)
     }
-
-    useEffect(() => {
-        setIsClient(true)
-    }, [])
 
     return (
         <div id="faq" className='faq w-full bg-white h-full p-4 md:py-8 lg:py-8 lg:px-8 xl:p-10 xl:px-25'>
@@ -48,7 +42,7 @@ export default function Faq(){
                         <h3 className='text-dark font-semibold text-[15px]  max-w-[190px] md:max-w-[260px] md:text-base lg:text-[1.1rem] xl:text-[1.15rem] lg:max-w-full font-montserrat pr-4'>
                           {faq.question}
                         </h3>
-                        <div className='flex-shrink-0'>
+                        <div className='shrink-0'>
                           <div className='w-8 h-8 bg-orange flex items-center justify-center rounded-[5px]'>
                             <svg
                               className='w-4 h-4 text-white transition-all duration-200'
@@ -84,40 +78,6 @@ export default function Faq(){
                       )}
                     </div>
                   ))}
-                </div>
-
-                
-                <div
-                  className="contact-section w-full md:w-[45%] lg:w-[40%] xl:w-[35%] border-2 p-6 "
-                  style={{
-                    borderColor: "rgba(39,80,134,0.80)",
-                    background: "#FBFBFC",
-                  }}
-                >
-                  <div className='flex flex-col items-start justify-center gap-2 xl:gap-3'>
-                    <h3 className='text-dark font-bold italic text-base md:text-xl lg:text-2xl xl:text-2xl font-montserrat'>
-                      {FAQ_CONTENT.contactSection.heading}
-                    </h3>
-                    <p className='text-gray text-[0.85rem] md:text-[0.9rem]  xl:text-[1rem] font-roboto'>
-                      {FAQ_CONTENT.contactSection.description}
-                    </p>
-                    {isClient && (
-                      <button
-                        className="flex flex-row items-center gap-2 mt-4 rounded-sm text-sm lg:text-base xl:text-lg px-4 lg:px-5 py-3 font-medium font-roboto cursor-pointer hover:bg-[#275086] bg-blue text-white transition-all duration-300"
-                      >
-                        <Image
-                          src="/desktop.svg"
-                          alt="Phone"
-                          width={16}
-                          height={16}
-                          className="h-4 xl:h-5 w-auto"
-                        />
-                        <span className="text-sm lg:text-base xl:text-[1.2rem] font-roboto text-white">
-                          1-855-659-1507
-                        </span>
-                      </button>
-                    )}
-                  </div>
                 </div>
               </div>
             </div>

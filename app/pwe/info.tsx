@@ -1,8 +1,12 @@
+'use client'
+
 import {  INFO_CONTENT } from '@/lib/constant'
 import React from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 export default function Info() {
+  const router = useRouter()
   return (
     <div
       className='info w-full h-full p-4 md:p-9 lg:py-13 lg:px-13 xl:px-55 xl:py-15'
@@ -26,7 +30,17 @@ export default function Info() {
             </div>
 
             <div className="cta-button w-full md:mt-2 xl:mt-4 max-w-[160px] lg:max-w-[180px] xl:max-w-[220px] flex items-center justify-center">
-                <button className="bg-blue w-full text-white px-4 py-3 xl:py-4 text-[0.9rem] md:text-base lg:text-[1.1rem] xl:text-[1.2rem] rounded-sm font-medium font-roboto flex items-center justify-center gap-4 cursor-pointer hover:bg-[#275086] transition-colors">
+                <button 
+                  onClick={() => {
+                    // Set access token to allow form access
+                    if (typeof window !== 'undefined') {
+                      const accessToken = crypto.randomUUID();
+                      sessionStorage.setItem('form_access_token', accessToken);
+                    }
+                    router.push('/form');
+                  }}
+                  className="bg-blue w-full text-white px-4 py-3 xl:py-4 text-[0.9rem] md:text-base lg:text-[1.1rem] xl:text-[1.2rem] rounded-sm font-medium font-roboto flex items-center justify-center gap-4 cursor-pointer hover:bg-[#275086] transition-colors"
+                >
                   {INFO_CONTENT.ctaButton}
                   
                 </button>

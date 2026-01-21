@@ -38,7 +38,7 @@ function ThankYouContent() {
     utm_s1: ''
   })
   const [emailSent, setEmailSent] = useState(false)
-  const [buyer, setBuyer] = useState<string | null>(null)
+  // const [buyer, setBuyer] = useState<string | null>(null)
   const [hasProcessedUrl, setHasProcessedUrl] = useState(false)
   const emailSentRef = React.useRef(false)
 
@@ -105,11 +105,11 @@ function ThankYouContent() {
           setHasProcessedUrl(true);
           
           // Get buyer from URL if available
-          const buyerFromUrl = searchParams.get('buyer');
+          // const buyerFromUrl = searchParams.get('buyer');
           
-          if (buyerFromUrl) {
-            setBuyer(buyerFromUrl);
-          }
+          // if (buyerFromUrl) {
+          //   setBuyer(buyerFromUrl);
+          // }
           
           // Clean URL by removing query parameters after extracting the data
           setTimeout(() => {
@@ -130,7 +130,7 @@ function ThankYouContent() {
 
         // Check if user came from webhook (has email parameter)
         const emailFromUrl = searchParams.get('email');
-        const buyerFromUrl = searchParams.get('buyer');
+        // const buyerFromUrl = searchParams.get('buyer');
         
         if (emailFromUrl) {
           // User came from webhook or form submission with email - allow access
@@ -139,9 +139,9 @@ function ThankYouContent() {
           setHasProcessedUrl(true);
           
           // Set buyer from URL parameters
-          if (buyerFromUrl) {
-            setBuyer(buyerFromUrl);
-          }
+          // if (buyerFromUrl) {
+          //   setBuyer(buyerFromUrl);
+          // }
           
           // Clean URL by removing query parameters after extracting the data
           setTimeout(() => {
@@ -332,7 +332,7 @@ function ThankYouContent() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-6">
                 {/* Card 1: Trusted Company */}
-                <div className="bg-gradient-to-br from-sky-50 to-white rounded-xl shadow-lg border border-sky-100 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="bg-linear-to-br from-sky-50 to-white rounded-xl shadow-lg border border-sky-100 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="flex flex-col items-center text-center">
                     <div className="w-16 h-16 bg-sky-600 rounded-full flex items-center justify-center mb-5 shadow-md">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +360,7 @@ function ThankYouContent() {
                 </div>
 
                 {/* Card 2: Specialization */}
-                <div className="bg-gradient-to-br from-sky-50 to-white rounded-xl shadow-lg border border-sky-100 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="bg-linear-to-br from-sky-50 to-white rounded-xl shadow-lg border border-sky-100 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="flex flex-col items-center text-center">
                     <div className="w-16 h-16 bg-sky-600 rounded-full flex items-center justify-center mb-5 shadow-md">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,7 +388,7 @@ function ThankYouContent() {
                 </div>
 
                 {/* Card 3: Full-Service Approach */}
-                <div className="bg-gradient-to-br from-sky-50 to-white rounded-xl shadow-lg border border-sky-100 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="bg-linear-to-br from-sky-50 to-white rounded-xl shadow-lg border border-sky-100 p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="flex flex-col items-center text-center">
                     <div className="w-16 h-16 bg-sky-600 rounded-full flex items-center justify-center mb-5 shadow-md">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
