@@ -36,6 +36,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${roboto.variable} ${montserrat.variable} antialiased overflow-x-hidden`}
+        suppressContentEditableWarning
       >
         <UrlCleaner />
         {children}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { ArrowLeft, Loader2, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -111,10 +111,7 @@ const FormPage = () => {
   }, []);
 
   // Initialize UTM parameters from cookies
-  const [subid1, setSubid1] = useState("");
-  const [subid2, setSubid2] = useState("");
-  const [subid3, setSubid3] = useState("");
-
+  
   const [formData, setFormData] = useState(() => {
     const defaultData = {
       projectNature: "",
@@ -139,8 +136,8 @@ const FormPage = () => {
         const savedFormData = localStorage.getItem("windows_form_data");
         if (savedFormData) {
           const parsedData = JSON.parse(savedFormData);
-          return {
-            ...defaultData,
+          return { 
+            ...defaultData, 
             projectNature: parsedData.projectNature || "",
             homeowner: parsedData.homeowner || "",
             windowCount: parsedData.windowCount || "",
@@ -278,63 +275,6 @@ const FormPage = () => {
     };
   }, [trustedFormCertUrl]);
 
-  // UTM Parameter Detection with Cookie Fallback
-  // This must run immediately on mount, before any URL cleaning happens
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // Helper function to get cookie value
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
-      return '';
-    };
-
-    // Helper function to set cookie
-    const setCookie = (name: string, value: string, days: number = 30) => {
-      const expires = new Date();
-      expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-    };
-
-    // Read URL parameters immediately (before any URL cleaning)
-    const urlParams = new URLSearchParams(window.location.search);
-    const utmSource = urlParams.get("utm_source") || "";
-    const utmId = urlParams.get("utm_id") || "";
-    const utmS1 = urlParams.get("utm_s1") || "";
-
-    // If URL parameters exist, store them in cookies first
-    if (utmSource || utmId || utmS1) {
-      if (utmSource) {
-        setCookie('subid1', utmSource);
-        setSubid1(utmSource);
-      }
-      if (utmId) {
-        setCookie('subid2', utmId);
-        setSubid2(utmId);
-      }
-      if (utmS1) {
-        setCookie('subid3', utmS1);
-        setSubid3(utmS1);
-      }
-      
-      // Clean the URL by removing all query parameters and hash (after storing UTM in cookies)
-      setTimeout(() => {
-        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        window.history.replaceState({}, document.title, cleanUrl);
-      }, 200);
-    } else {
-      // If no URL parameters, read from cookies and update state
-      const cookieSubid1 = getCookie('subid1');
-      const cookieSubid2 = getCookie('subid2');
-      const cookieSubid3 = getCookie('subid3');
-      
-      if (cookieSubid1) setSubid1(cookieSubid1);
-      if (cookieSubid2) setSubid2(cookieSubid2);
-      if (cookieSubid3) setSubid3(cookieSubid3);
-    }
-  }, []);
 
   const handleInputChange = (
     field: string,
@@ -399,11 +339,11 @@ const FormPage = () => {
           
           // Prepare form data
           const submissionData = {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              email: formData.email,
             phoneNumber: formData.phoneNumber,
-            homeowner: formData.homeowner,
+              homeowner: formData.homeowner,
             projectNature: formData.projectNature,
             windowCount: formData.windowCount,
             workDone: formData.workDone,
@@ -411,9 +351,21 @@ const FormPage = () => {
             city: formData.city,
             state: formData.state,
             zipCode: formData.zipCode,
-            subid1: subid1,
-            subid2: subid2,
-            subid3: subid3,
+            subid1: (() => {
+              const value = `; ${document.cookie}`;
+              const parts = value.split(`; subid1=`);
+              return parts.length === 2 ? parts.pop()?.split(';').shift() || '' : '';
+            })(),
+            subid2: (() => {
+              const value = `; ${document.cookie}`;
+              const parts = value.split(`; subid2=`);
+              return parts.length === 2 ? parts.pop()?.split(';').shift() || '' : '';
+            })(),
+            subid3: (() => {
+              const value = `; ${document.cookie}`;
+              const parts = value.split(`; subid3=`);
+              return parts.length === 2 ? parts.pop()?.split(';').shift() || '' : '';
+            })(),
             trustedformCertUrl: finalCertUrl,
           };
 
@@ -469,10 +421,10 @@ const FormPage = () => {
           // Always redirect to thank you page, regardless of API response
           const redirectUrl =
             result.redirectUrl || (result.success ? `/thankyou?email=${encodeURIComponent(formData.email)}` : `/thankyou?email=${encodeURIComponent(formData.email)}`);
-
+          
           // Use replace to prevent back button issues
           router.replace(redirectUrl);
-
+          
           if (!result.success) {
             console.error(
               "Form submission error:",
@@ -592,14 +544,14 @@ const FormPage = () => {
             </p>
           </div>
         )}
-        <ProgressBar
+        <ProgressBar 
           currentStep={currentStep}
           totalSteps={7}
         />
         <form>
         <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-6">
           <TrustedForm onCertUrlReady={handleTrustedFormReady} />
-
+          
           {currentStep === 1 && (
             <>
               <h2 className="text-2xl md:text-3xl font-bold text-[#1e1e1e] mb-8 md:mb-10">
@@ -771,7 +723,7 @@ const FormPage = () => {
                     maxLength={2}
                   />
                 </div>
-                <TextInput
+              <TextInput
                   id="zipCode"
                   label="Zip Code"
                   value={formData.zipCode}
@@ -796,8 +748,8 @@ const FormPage = () => {
                   value={formData.phoneNumber}
                   onChange={(value) => handleInputChange("phoneNumber", value)}
                   placeholder="(123) 456-7890"
-                  required
-                />
+                required
+              />
               </div>
             </>
           )}
@@ -918,9 +870,9 @@ const FormPage = () => {
       </div>
 
       {/* Partner Modal */}
-      <PartnerModal
-        isOpen={isPartnerModalOpen}
-        onClose={() => setIsPartnerModalOpen(false)}
+      <PartnerModal 
+        isOpen={isPartnerModalOpen} 
+        onClose={() => setIsPartnerModalOpen(false)} 
       />
     </div>
   );
@@ -928,14 +880,14 @@ const FormPage = () => {
 
 export default function FormPageWrapper() {
   return (
-    <React.Suspense
+    <Suspense
       fallback={
-        <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 flex items-center justify-center">
-          <div className="text-sky-600 text-xl font-semibold">Loading...</div>
-        </div>
+      <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-sky-50 flex items-center justify-center">
+        <div className="text-sky-600 text-xl font-semibold">Loading...</div>
+      </div>
       }
     >
       <FormPage />
-    </React.Suspense>
+    </Suspense>
   );
 }
