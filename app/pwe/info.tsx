@@ -7,23 +7,15 @@ import { useRouter } from 'next/navigation'
 
 export default function Info() {
   const router = useRouter()
-  const [zipCode, setZipCode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedZipCode = localStorage.getItem('zipCode');
-      return savedZipCode ? savedZipCode.trim() : '';
-    }
-    return '';
-  });
+  const [zipCode, setZipCode] = useState('');
 
-  // Ensure zipCode is synced from localStorage after mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedZipCode = localStorage.getItem('zipCode');
-      if (savedZipCode && savedZipCode.trim() !== zipCode) {
-        setZipCode(savedZipCode.trim());
+      if (savedZipCode) {
+        setZipCode(savedZipCode);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +29,7 @@ export default function Info() {
     }
   };
 
-  const isValidZipCode = zipCode.trim().length === 5;
+  const isValidZipCode = zipCode.length === 5;
 
   const handleSubmit = () => {
     if (isValidZipCode) {
