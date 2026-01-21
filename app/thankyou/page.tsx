@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation'
 
 // Control whether to verify thank you page token
 // Set to false for development to skip verification
-const doVerifyThankYouPage = false
+const doVerifyThankYouPage = true
 
 const ads = [
   {
