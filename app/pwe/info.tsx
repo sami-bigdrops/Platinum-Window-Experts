@@ -1,7 +1,7 @@
 'use client'
 
 import {  INFO_CONTENT, HERO_CONTENT } from '@/lib/constant'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
@@ -10,10 +10,21 @@ export default function Info() {
   const [zipCode, setZipCode] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedZipCode = localStorage.getItem('zipCode');
-      return savedZipCode || '';
+      return savedZipCode ? savedZipCode.trim() : '';
     }
     return '';
   });
+
+  // Ensure zipCode is synced from localStorage after mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedZipCode = localStorage.getItem('zipCode');
+      if (savedZipCode && savedZipCode.trim() !== zipCode) {
+        setZipCode(savedZipCode.trim());
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -26,7 +37,7 @@ export default function Info() {
     }
   };
 
-  const isValidZipCode = zipCode.length === 5;
+  const isValidZipCode = zipCode.trim().length === 5;
 
   const handleSubmit = () => {
     if (isValidZipCode) {
