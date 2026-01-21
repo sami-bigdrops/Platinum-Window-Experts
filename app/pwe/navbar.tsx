@@ -106,29 +106,6 @@ export default function Navbar() {
                     1-855-659-1507
                   </span>
                 </button> */}
-                
-                <button 
-                  onClick={() => {
-                    // Set access token to allow form access
-                    if (typeof window !== 'undefined') {
-                      const accessToken = crypto.randomUUID();
-                      sessionStorage.setItem('form_access_token', accessToken);
-                    }
-                    router.push('/form');
-                  }}
-                  className="flex flex-row items-center gap-2 rounded-sm text-sm lg:text-base xl:text-lg px-4 lg:px-5 py-3 font-medium font-roboto cursor-pointer bg-blue text-white transition-all duration-300 hover:bg-[#275086]"
-                >
-                  <span className="text-sm lg:text-base xl:text-[1.3rem] font-roboto text-white">
-                    Get my FREE Quote
-                  </span>
-                  <Image
-                    src="/arrow.svg"
-                    alt="Arrow"
-                    width={12}
-                    height={12}
-                    className="h-3 w-3 xl:h-4 xl:w-4"
-                  />
-                </button>
               </>
             )}
           </div>
