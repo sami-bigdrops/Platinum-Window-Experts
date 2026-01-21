@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Roboto, Montserrat } from "next/font/google";
 import "./globals.css";
 import UrlCleaner from "@/components/UrlCleaner";
+import UtmHandler from "@/components/UtmHandler";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({
         className={`${roboto.variable} ${montserrat.variable} antialiased overflow-x-hidden`}
         suppressContentEditableWarning
       >
+        <UtmHandler />
         <UrlCleaner />
         {children}
       </body>

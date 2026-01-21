@@ -38,50 +38,6 @@ export default function Hero() {
     fetchLocation();
   }, []);
 
-  // UTM Parameter Detection and Cookie Storage
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // Helper function to get cookie value
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
-      return '';
-    };
-
-    // Helper function to set cookie
-    const setCookie = (name: string, value: string, days: number = 30) => {
-      const expires = new Date();
-      expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-    };
-
-    // Read URL parameters immediately (before any URL cleaning)
-    const urlParams = new URLSearchParams(window.location.search);
-    const utmSource = urlParams.get("utm_source") || "";
-    const utmId = urlParams.get("utm_id") || "";
-    const utmS1 = urlParams.get("utm_s1") || "";
-
-    // If URL parameters exist, store them in cookies
-    if (utmSource || utmId || utmS1) {
-      if (utmSource) {
-        setCookie('subid1', utmSource);
-      }
-      if (utmId) {
-        setCookie('subid2', utmId);
-      }
-      if (utmS1) {
-        setCookie('subid3', utmS1);
-      }
-      
-      // Clean the URL by removing all query parameters and hash (after storing UTM in cookies)
-      setTimeout(() => {
-        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        window.history.replaceState({}, document.title, cleanUrl);
-      }, 200);
-    }
-  }, []);
 
   const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
