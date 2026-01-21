@@ -1,12 +1,49 @@
 'use client'
 
-import {  INFO_CONTENT } from '@/lib/constant'
-import React from 'react'
+import {  INFO_CONTENT, HERO_CONTENT } from '@/lib/constant'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 export default function Info() {
   const router = useRouter()
+  const [zipCode, setZipCode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedZipCode = localStorage.getItem('zipCode');
+      return savedZipCode || '';
+    }
+    return '';
+  });
+
+  const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const numericValue = value.replace(/\D/g, '');
+    if (numericValue.length <= 5) {
+      setZipCode(numericValue);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('zipCode', numericValue);
+      }
+    }
+  };
+
+  const isValidZipCode = zipCode.length === 5;
+
+  const handleSubmit = () => {
+    if (isValidZipCode) {
+      // Set access token to allow form access
+      if (typeof window !== 'undefined') {
+        const accessToken = crypto.randomUUID();
+        sessionStorage.setItem('form_access_token', accessToken);
+      }
+      router.push('/form');
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && isValidZipCode) {
+      handleSubmit();
+    }
+  };
   return (
     <div
       className='info w-full h-full p-4 md:p-9 lg:py-13 lg:px-13 xl:px-55 xl:py-15'
@@ -29,21 +66,43 @@ export default function Info() {
               </p>
             </div>
 
-            <div className="cta-button w-full md:mt-2 xl:mt-4 max-w-[160px] lg:max-w-[180px] xl:max-w-[220px] flex items-center justify-center">
+            <div className="input-container-group flex flex-col md:flex-row items-center justify-start gap-4 w-full md:mt-2 xl:mt-4">
+              <div className="input-container w-full max-w-[300px] relative bg-white rounded-sm px-3 py-2">
+                <Image
+                  src="/location.svg"
+                  alt="Location"
+                  width={18}
+                  height={20}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10"
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder={HERO_CONTENT.inputPlaceholder}
+                  value={zipCode}
+                  onChange={handleZipCodeChange}
+                  onKeyPress={handleKeyPress}
+                  maxLength={5}
+                  className="w-full pl-7 pr-4 py-2 rounded-md xl:text-[1.1rem] border-0 outline-none text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-0"
+                />
+              </div>
+              <div className="cta-button w-full max-w-[160px] xl:max-w-[170px] flex items-center justify-center">
                 <button 
-                  onClick={() => {
-                    // Set access token to allow form access
-                    if (typeof window !== 'undefined') {
-                      const accessToken = crypto.randomUUID();
-                      sessionStorage.setItem('form_access_token', accessToken);
-                    }
-                    router.push('/form');
-                  }}
-                  className="bg-blue w-full text-white px-4 py-3 xl:py-4 text-[0.9rem] md:text-base lg:text-[1.1rem] xl:text-[1.2rem] rounded-sm font-medium font-roboto flex items-center justify-center gap-4 cursor-pointer hover:bg-[#275086] transition-colors"
+                  onClick={handleSubmit}
+                  disabled={!isValidZipCode}
+                  className="bg-blue w-full text-white px-4 py-3 xl:py-4 rounded-sm font-medium font-roboto flex items-center justify-center gap-4 cursor-pointer hover:bg-[#275086] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {INFO_CONTENT.ctaButton}
-                  
+                  {HERO_CONTENT.ctaButton}
+                  <Image
+                    src="/arrow.svg"
+                    alt="Arrow"
+                    width={12}
+                    height={12}
+                    className="w-auto h-[12px]"
+                  />
                 </button>
+              </div>
             </div>
 
 

@@ -320,8 +320,8 @@ function ThankYouContent() {
               />
             </div>
             
-            <p className="text-xl text-gray-600 mb-6 leading-relaxed max-w-2xl mx-auto">
-            Congratulations! You have been matched with one of our partners, Renewal By Andersen. The Window Expert will be contacting you soon!
+            <p className="text-xl text-gray-600 mb-6 leading-relaxed max-w-[800px] mx-auto">
+            Congratulations! You have been matched with one of our partners, Renewal By Andersen. The Customer Specialist will be contacting you soon!
             </p>
             
             {/* About Renewal by Andersen Section */}

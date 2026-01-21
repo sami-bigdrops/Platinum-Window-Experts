@@ -26,14 +26,14 @@ export default function Footer() {
             >
                Terms of Service
             </a>
-            <span className="text-white text-[0.75rem] md:text-[0.8rem] lg:text-[0.95rem] xl:text-[1.1rem]">|</span>
-            <a 
+            {/* <span className="text-white text-[0.75rem] md:text-[0.8rem] lg:text-[0.95rem] xl:text-[1.1rem]">|</span> */}
+            {/* <a 
               href="#" 
               className="text-[0.75rem] md:text-[0.8rem] lg:text-[0.95rem] xl:text-[1.1rem] font-roboto font-medium lg:text-sm xl:text-base text-white hover:text-[#2B96E4] transition-colors duration-300"
              
             >
               Unsubscribe
-            </a>
+            </a> */}
           </div>
           
           <div className="copyright text-center 2xl:mb-2">

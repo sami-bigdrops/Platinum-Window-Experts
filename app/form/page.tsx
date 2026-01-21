@@ -275,6 +275,27 @@ const FormPage = () => {
     };
   }, [trustedFormCertUrl]);
 
+  // Clean URL to remove TrustedForm parameters
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    
+    const cleanUrl = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasTrustedFormParams = urlParams.has('xxTrustedFormCertUrl') || 
+                                   urlParams.has('xxTrustedFormToken') ||
+                                   window.location.search.includes('trustedform');
+      
+      if (hasTrustedFormParams || window.location.search.length > 0 || window.location.hash.length > 0) {
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+    };
+
+    // Clean URL after a short delay to allow any scripts to run first
+    const timeoutId = setTimeout(cleanUrl, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const handleInputChange = (
     field: string,
@@ -548,7 +569,30 @@ const FormPage = () => {
           currentStep={currentStep}
           totalSteps={7}
         />
-        <form>
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            // If form is valid and on last step, submit; otherwise go to next step
+            if (isStepValid() && !isSubmitting) {
+              if (currentStep === 7) {
+                handleNext();
+              } else {
+                handleNext();
+              }
+            }
+          }}
+          onKeyDown={(e) => {
+            // Handle Enter key press
+            if (e.key === 'Enter' && isStepValid() && !isSubmitting) {
+              e.preventDefault();
+              if (currentStep === 7) {
+                handleNext();
+              } else {
+                handleNext();
+              }
+            }
+          }}
+        >
         <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-6">
           <TrustedForm onCertUrlReady={handleTrustedFormReady} />
           
@@ -778,6 +822,7 @@ const FormPage = () => {
           <div className="flex gap-4">
             {currentStep > 1 && (
               <button
+                type="button"
                 onClick={handleBack}
                 className="px-6 py-4 rounded-xl font-bold text-base md:text-lg
                   border-2 border-gray-300 text-gray-700 hover:border-sky-600 hover:text-sky-600
@@ -788,6 +833,7 @@ const FormPage = () => {
               </button>
             )}
             <button
+              type="button"
               onClick={handleNext}
               disabled={!isStepValid() || isSubmitting}
               className={`
