@@ -1,22 +1,19 @@
 'use client'
 
 import {  INFO_CONTENT, HERO_CONTENT } from '@/lib/constant'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 export default function Info() {
   const router = useRouter()
-  const [zipCode, setZipCode] = useState('');
-
-  useEffect(() => {
+  const [zipCode, setZipCode] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedZipCode = localStorage.getItem('zipCode');
-      if (savedZipCode) {
-        setZipCode(savedZipCode);
-      }
+      return savedZipCode || '';
     }
-  }, []);
+    return '';
+  });
 
   const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
